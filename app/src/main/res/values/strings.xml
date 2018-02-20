@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PulseOximeterApp</string>
+    <string name="device_btn_lbl">Log Devices</string>
+    <string name="accessory_btn_lbl">Log Accessories</string>
+</resources>
