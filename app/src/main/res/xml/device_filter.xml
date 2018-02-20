@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- Grey fingertip reader -->
+    <usb-device vendor-id="1204" product-id="62002"/>
+
+    <!-- Adafruit Flora -->
+    <usb-device vendor-id="9114" product-id="32772"/>
+
+</resources>
