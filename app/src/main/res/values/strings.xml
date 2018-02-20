@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">PulseOximeterApp</string>
     <string name="device_btn_lbl">Log Devices</string>
+    <string name="monitor_btn_lbl">Monitor Devices</string>
 </resources>

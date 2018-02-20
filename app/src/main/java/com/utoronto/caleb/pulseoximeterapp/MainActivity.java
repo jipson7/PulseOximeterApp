@@ -2,6 +2,7 @@ package com.utoronto.caleb.pulseoximeterapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbInterface;
@@ -18,7 +19,7 @@ public class MainActivity extends Activity {
 
     UsbManager manager;
 
-    String TAG = "DEVICE_LOGGING";
+    String TAG = "PULSE_OXIMETER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,5 +47,10 @@ public class MainActivity extends Activity {
             String manufacturerName = device.getManufacturerName();
             Log.d(TAG, "Manufacturer Name: " + manufacturerName);
         }
+    }
+
+    public void onClickMonitorBtn(View v) {
+        Intent intent = new Intent(this, MonitorActivity.class);
+        startActivity(intent);
     }
 }

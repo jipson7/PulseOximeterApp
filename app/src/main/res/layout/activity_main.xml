@@ -19,6 +19,15 @@
             android:layout_centerVertical="true"
             android:onClick="onClickDevicesBtn"
             android:text="@string/device_btn_lbl" />
+
+        <Button
+            android:id="@+id/monitor_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:onClick="onClickMonitorBtn"
+            android:text="@string/monitor_btn_lbl" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
