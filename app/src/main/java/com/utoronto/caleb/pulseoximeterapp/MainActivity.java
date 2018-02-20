@@ -3,9 +3,7 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,20 +11,19 @@ import android.view.View;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 public class MainActivity extends Activity {
 
-    UsbManager manager;
+    UsbManager usbManager;
 
-    String TAG = "PULSE_OXIMETER";
+    static String TAG = "PULSE_OXIMETER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        this.usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
     }
 
     public void onClickDevicesBtn(View v) {
@@ -34,11 +31,13 @@ public class MainActivity extends Activity {
     }
 
     public void logAvailableDevices(){
-        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
         Log.d(TAG, deviceList.size() + " devices found.");
         Iterator it = deviceList.values().iterator();
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
+            String deviceName = device.getDeviceName();
+            Log.d(TAG, "Device Name: " + deviceName);
             int vendorID = device.getVendorId();
             int productID = device.getProductId();
             Log.d(TAG, "Vendor ID: " + vendorID + ", Product ID: " + productID);
