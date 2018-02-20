@@ -17,6 +17,8 @@ public class MonitorActivity extends Activity {
     UsbManager usbManager;
     String TAG;
 
+    final String SENSOR_FINGERTIP = "USBUART";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +30,10 @@ public class MonitorActivity extends Activity {
 
     private void startDeviceMonitor() {
         ArrayList<UsbDevice> devices = getAvailableDevices();
+        for (UsbDevice device: devices) {
+            // Spawn Thread here to monitor device if multiple
+            monitorDevice(device);
+        }
     }
 
     private ArrayList<UsbDevice> getAvailableDevices() {
@@ -37,18 +43,18 @@ public class MonitorActivity extends Activity {
         Log.d(TAG, deviceList.size() + " devices detected.");
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
-            String productName = device.getProductName();
-            switch (productName) {
-                case "USBUART":
+            switch (device.getProductName()) {
+                case SENSOR_FINGERTIP:
                     Log.d(TAG, "Fingertip Sensor detected");
                     devices.add(device);
                     break;
             }
+            it.remove();
         }
         return devices;
     }
 
     private void monitorDevice(UsbDevice device) {
-
+        
     }
 }
