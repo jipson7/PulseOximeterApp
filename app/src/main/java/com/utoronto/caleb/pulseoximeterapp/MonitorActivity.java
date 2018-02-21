@@ -19,6 +19,9 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,17 +100,25 @@ public class MonitorActivity extends Activity {
         UsbSerialDriver driver = getUsbDriver(device);
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
+        String productName = device.getProductName();
+
         if (connection == null) {
-            Log.e(TAG, "Must request permission to access device.");
+            Log.e(TAG, "Must request permission to access " + productName);
             this.mUsbManager.requestPermission(device, this.mPermissionIntent);
             return;
         } else {
-            Log.d(TAG, "Successfully connected to " + device.getProductName());
+            Log.d(TAG, "Successfully connected to " + productName);
         }
 
         UsbSerialPort port = driver.getPorts().get(0);
         try {
             port.open(connection);
+
+            byte buffer[] = new byte[16];
+            int numBytesRead = port.read(buffer, 1000);
+            String data = new String(buffer, Charset.forName("UTF-8"));
+            Log.d(TAG, data);
+            Log.d(TAG, "Read " + numBytesRead + " bytes.");
             port.close();
         } catch (IOException e) {
             e.printStackTrace();
