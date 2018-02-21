@@ -21,13 +21,6 @@
             android:text="@string/device_btn_lbl" />
 
         <Button
-            android:id="@+id/driver_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onClickDriverBtn"
-            android:text="@string/driver_btn_lbl" />
-
-        <Button
             android:id="@+id/monitor_btn"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
