@@ -28,7 +28,7 @@ public class MonitorActivity extends Activity {
 
     private PendingIntent mPermissionIntent;
 
-    private static final String ACTION_USB_PERMISSION = "com.utoronto.caleb.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.utoronto.caleb.pulseoximeterapp.action.USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
@@ -59,7 +59,15 @@ public class MonitorActivity extends Activity {
         mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(mUsbReceiver, filter);
-        startDeviceMonitor();
+        //startDeviceMonitor();
+        startMonitorService();
+    }
+
+    private void startMonitorService() {
+        Intent intent = new Intent(this, MonitorService.class);
+        intent.setAction(MonitorService.ACTION_MONITOR);
+        //intent.putExtra(EXTRA_PARAM1, param1);
+        startService(intent);
     }
 
     private void startDeviceMonitor() {

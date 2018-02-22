@@ -20,7 +20,11 @@
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
         </activity>
-        <activity android:name=".MonitorActivity"></activity>
+        <activity android:name=".MonitorActivity" />
+
+        <service
+            android:name=".MonitorService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
