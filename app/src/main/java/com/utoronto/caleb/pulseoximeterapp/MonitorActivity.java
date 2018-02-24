@@ -6,11 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +24,8 @@ public class MonitorActivity extends Activity {
 
     private PendingIntent mPermissionIntent;
 
+    ArrayList<UsbDevice> mDevices;
+
     private static final String ACTION_USB_PERMISSION = "com.utoronto.caleb.pulseoximeterapp.action.USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
@@ -39,7 +37,7 @@ public class MonitorActivity extends Activity {
 
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
-                            monitorDevice(device);
+                            startMonitorService();
                         }
                     }
                     else {
@@ -59,23 +57,36 @@ public class MonitorActivity extends Activity {
         mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(mUsbReceiver, filter);
-        //startDeviceMonitor();
+        this.mDevices = getAvailableDevices();
         startMonitorService();
     }
 
     private void startMonitorService() {
+        Log.d(TAG, "Attempting to start Monitor Service.");
+        ArrayList<String> deviceNames = new ArrayList<>();
+        for (UsbDevice device: this.mDevices) {
+            if (!this.mUsbManager.hasPermission(device)) {
+                Log.d(TAG, "Missing permission for device. Requesting.");
+                this.mUsbManager.requestPermission(device, this.mPermissionIntent);
+                Log.d(TAG, "Device " + device.getProductName() +  "is missing permissions.");
+                return;
+            } else {
+                deviceNames.add(device.getDeviceName());
+            }
+        }
+
+        if (deviceNames.size() == 0) {
+            Log.e(TAG,"Cannot start Monitoring service with 0 useable devices attached.");
+            finish();
+            return;
+        }
+
+        Log.d(TAG, "Starting Monitor service with " + deviceNames.size() + " devices.");
+
         Intent intent = new Intent(this, MonitorService.class);
         intent.setAction(MonitorService.ACTION_MONITOR);
-        //intent.putExtra(EXTRA_PARAM1, param1);
+        intent.putStringArrayListExtra(MonitorService.DEVICE_PARAM, deviceNames);
         startService(intent);
-    }
-
-    private void startDeviceMonitor() {
-        ArrayList<UsbDevice> devices = getAvailableDevices();
-        for (UsbDevice device: devices) {
-            // Spawn Thread here to monitor device if multiple
-            monitorDevice(device);
-        }
     }
 
     private ArrayList<UsbDevice> getAvailableDevices() {
@@ -85,6 +96,7 @@ public class MonitorActivity extends Activity {
         Log.d(TAG, deviceList.size() + " devices detected.");
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
+            Log.d(TAG, "Checking " + device.getProductName() + ".");
             switch (device.getProductName()) {
                 case SENSOR_FINGERTIP:
                     Log.d(TAG, "Fingertip Sensor detected");
@@ -94,62 +106,5 @@ public class MonitorActivity extends Activity {
             it.remove();
         }
         return devices;
-    }
-
-    private void monitorDevice(UsbDevice device) {
-        int BUFFER_SIZE = 500;
-        UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
-        UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
-
-        String productName = device.getProductName();
-
-        if (connection == null) {
-            Log.e(TAG, "Must request permission to access " + productName);
-            this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-            return;
-        } else {
-            Log.d(TAG, "Successfully connected to " + productName);
-        }
-        while(true) {
-            byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
-            int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
-            if (result < 0) {
-                Log.d(TAG, "Usb read result is -1, ending loop");
-                break;
-            }
-            String dataRead = bytesToHex(bytesIn);
-            int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-            int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
-            int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            Log.d(TAG, currHeartRate + " " + currSpo2 + " " + currBP);
-        }
-    }
-
-    private UsbEndpoint getBulkInEndpoint(UsbDevice device) {
-        UsbEndpoint inEndpoint = null;
-        for (int i = 0; i < device.getInterfaceCount(); i++) {
-            UsbInterface usbInterface = device.getInterface(i);
-            for (int j = 0; j < usbInterface.getEndpointCount(); j++) {
-                if (usbInterface.getEndpoint(j).getDirection() == UsbConstants.USB_DIR_IN) {
-                    inEndpoint = usbInterface.getEndpoint(j);
-                    if (inEndpoint != null && inEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                        Log.d(TAG, "BulkIn endpoint found. ");
-                        break;
-                    }
-                }
-            }
-        }
-        return inEndpoint;
-    }
-
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }
