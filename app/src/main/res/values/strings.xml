@@ -3,4 +3,7 @@
     <string name="device_btn_lbl">Log Devices</string>
     <string name="driver_btn_lbl">Log Drivers</string>
     <string name="monitor_btn_lbl">Monitor Devices</string>
+
+    <!-- Device Names -->
+    <string name="product_name_fingertip">USBUART</string>
 </resources>
