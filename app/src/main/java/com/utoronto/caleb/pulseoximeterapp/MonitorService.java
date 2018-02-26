@@ -5,15 +5,14 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Intent;
+import android.app.Service;
 import android.content.Context;
-import android.hardware.usb.UsbConstants;
+import android.content.Intent;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,11 +24,10 @@ import java.util.HashMap;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class MonitorService extends IntentService {
+public class MonitorService extends Service {
 
     private final String TAG = "MONITOR_SERVICE";
 
-    public static final int MONITOR_NOTIFICATION_CHANNEL_ID = 4321;
     public static final int MONITOR_NOTIFICATION_ID = 1234;
 
     public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
@@ -41,9 +39,29 @@ public class MonitorService extends IntentService {
     private UsbManager mUsbManager = null;
     private String mChannelId;
 
-    public MonitorService() {
-        super("MonitorService");
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        createNotification();
+        if (mUsbManager == null) {
+            mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        }
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (action.equals(ACTION_MONITOR)) {
+                mDeviceNames = intent.getStringArrayListExtra(DEVICE_PARAM);
+                monitor();
+            }
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+
 
     private void createNotification() {
         //Go to this intent if Notification is clicked
@@ -72,21 +90,6 @@ public class MonitorService extends IntentService {
     }
 
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        createNotification();
-        if (mUsbManager == null) {
-            mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        }
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (action.equals(ACTION_MONITOR)) {
-                mDeviceNames = intent.getStringArrayListExtra(DEVICE_PARAM);
-                monitor();
-            }
-        }
-    }
-
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
@@ -101,4 +104,13 @@ public class MonitorService extends IntentService {
         //stopSelf();
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+    }
 }
