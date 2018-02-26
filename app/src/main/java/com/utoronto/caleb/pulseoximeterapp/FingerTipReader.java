@@ -9,6 +9,8 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
+import java.util.HashMap;
+
 /**
  * Created by caleb on 2018-02-24.
  */
@@ -30,10 +32,13 @@ public class FingerTipReader implements Runnable {
 
     @Override
     public void run() {
+        Log.d(TAG, "FingerTipReader Runnable Launched.");
         if (mUsbManager == null) {
             mUsbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         }
-        Log.d(TAG, "FingerTipReader Thread Launched.");
+        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
+        UsbDevice device = deviceList.get(mDeviceName);
+        monitorDevice(device);
     }
 
     private void monitorDevice(UsbDevice device) {
