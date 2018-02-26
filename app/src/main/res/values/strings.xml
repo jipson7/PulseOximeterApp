@@ -1,13 +1,20 @@
 <resources>
+    <!-- Labels -->
     <string name="app_name">PulseOximeterApp</string>
     <string name="device_btn_lbl">Log Devices</string>
     <string name="driver_btn_lbl">Log Drivers</string>
     <string name="monitor_btn_lbl">Monitor Devices</string>
 
+    <!-- Toasts -->
+    <string name="no_devices">No supported devices attached.</string>
+
     <!-- Device Names -->
     <string name="product_name_fingertip">USBUART</string>
 
     <!-- Notification Information -->
+    <string name="channel_id">monitor_service_channel</string>
+    <string name="channel_name">Monitor Channel</string>
+    <string name="channel_description">Information on device monitoring</string>
     <string name="notification_title">Monitor Status</string>
     <string name="notification_message">In progress…</string>
     <string name="ticker_text">Ticker Text?</string>

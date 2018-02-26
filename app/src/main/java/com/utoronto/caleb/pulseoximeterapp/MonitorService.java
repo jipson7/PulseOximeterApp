@@ -3,6 +3,7 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.Context;
@@ -28,6 +29,7 @@ public class MonitorService extends IntentService {
 
     private final String TAG = "MONITOR_SERVICE";
 
+    public static final int MONITOR_NOTIFICATION_CHANNEL_ID = 4321;
     public static final int MONITOR_NOTIFICATION_ID = 1234;
 
     public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
@@ -37,27 +39,36 @@ public class MonitorService extends IntentService {
     private ArrayList<String> mDeviceNames;
 
     private UsbManager mUsbManager = null;
+    private String mChannelId;
 
     public MonitorService() {
         super("MonitorService");
     }
 
     private void createNotification() {
-        Notification notification = getServiceNotification();
-        startForeground(MONITOR_NOTIFICATION_ID, notification);
-    }
-
-
-    private Notification getServiceNotification() {
+        //Go to this intent if Notification is clicked
         Intent intent = new Intent(this, MonitorActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        return new Notification.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+
+        //Create Notification Channel
+        mChannelId = getString(R.string.channel_id);
+        String name = getString(R.string.channel_name);
+        String desc = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel(mChannelId, name, importance);
+        channel.setDescription(desc);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
+
+        //Create notification
+        Notification notification = new Notification.Builder(this, mChannelId)
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_message))
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build();
+        startForeground(MONITOR_NOTIFICATION_ID, notification);
     }
 
 

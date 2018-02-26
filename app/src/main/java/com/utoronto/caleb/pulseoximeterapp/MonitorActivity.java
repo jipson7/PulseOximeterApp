@@ -10,6 +10,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +82,8 @@ public class MonitorActivity extends Activity {
         }
 
         if (deviceNames.size() == 0) {
+            Toast toast = Toast.makeText(this, R.string.no_devices, Toast.LENGTH_LONG);
+            toast.show();
             Log.e(TAG,"Cannot start Monitoring service with 0 useable devices attached.");
             finish();
             return;
