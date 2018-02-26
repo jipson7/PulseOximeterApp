@@ -1,6 +1,9 @@
 package com.utoronto.caleb.pulseoximeterapp;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.Context;
 import android.hardware.usb.UsbConstants;
@@ -25,6 +28,8 @@ public class MonitorService extends IntentService {
 
     private final String TAG = "MONITOR_SERVICE";
 
+    public static final int MONITOR_NOTIFICATION_ID = 1234;
+
     public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
 
     public static final String DEVICE_PARAM = "com.utoronto.caleb.pulseoximeterapp.param.DEVICE_PARAMETER";
@@ -37,8 +42,28 @@ public class MonitorService extends IntentService {
         super("MonitorService");
     }
 
+    private void createNotification() {
+        Notification notification = getServiceNotification();
+        startForeground(MONITOR_NOTIFICATION_ID, notification);
+    }
+
+
+    private Notification getServiceNotification() {
+        Intent intent = new Intent(this, MonitorActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        return new Notification.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+                .setContentTitle(getText(R.string.notification_title))
+                .setContentText(getText(R.string.notification_message))
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentIntent(pIntent)
+                .setTicker(getText(R.string.ticker_text))
+                .build();
+    }
+
+
     @Override
     protected void onHandleIntent(Intent intent) {
+        createNotification();
         if (mUsbManager == null) {
             mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         }
