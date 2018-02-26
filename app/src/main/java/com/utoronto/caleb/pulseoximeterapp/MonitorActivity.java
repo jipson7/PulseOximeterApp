@@ -54,11 +54,16 @@ public class MonitorActivity extends Activity {
         setContentView(R.layout.activity_monitor);
         this.TAG = MainActivity.TAG;
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        this.mDevices = getAvailableDevices();
+        startMonitorService();
+    }
+
+    @Override
+    protected void onStart() {
         mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(mUsbReceiver, filter);
-        this.mDevices = getAvailableDevices();
-        startMonitorService();
+        super.onStart();
     }
 
     private void startMonitorService() {
@@ -106,5 +111,12 @@ public class MonitorActivity extends Activity {
             it.remove();
         }
         return devices;
+    }
+
+    @Override
+    protected void onStop() {
+        //TODO unregister reciever here
+        unregisterReceiver(mUsbReceiver);
+        super.onStop();
     }
 }
