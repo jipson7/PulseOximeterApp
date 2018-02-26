@@ -60,11 +60,12 @@ public class MonitorActivity extends Activity {
     }
 
     @Override
-    protected void onStart() {
+    protected void onResume() {
+        Log.d(TAG, "Starting Monitor activity");
         mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(mUsbReceiver, filter);
-        super.onStart();
+        super.onResume();
     }
 
     private void startMonitorService() {
@@ -74,7 +75,7 @@ public class MonitorActivity extends Activity {
             if (!this.mUsbManager.hasPermission(device)) {
                 Log.d(TAG, "Missing permission for device. Requesting.");
                 this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-                Log.d(TAG, "Device " + device.getProductName() +  "is missing permissions.");
+                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions.");
                 return;
             } else {
                 deviceNames.add(device.getDeviceName());
@@ -82,8 +83,7 @@ public class MonitorActivity extends Activity {
         }
 
         if (deviceNames.size() == 0) {
-            Toast toast = Toast.makeText(this, R.string.no_devices, Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(this, R.string.no_devices, Toast.LENGTH_LONG).show();
             Log.e(TAG,"Cannot start Monitoring service with 0 useable devices attached.");
             finish();
             return;
@@ -117,9 +117,8 @@ public class MonitorActivity extends Activity {
     }
 
     @Override
-    protected void onStop() {
-        //TODO unregister reciever here
+    protected void onPause() {
         unregisterReceiver(mUsbReceiver);
-        super.onStop();
+        super.onPause();
     }
 }
