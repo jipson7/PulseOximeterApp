@@ -6,4 +6,9 @@
 
     <!-- Device Names -->
     <string name="product_name_fingertip">USBUART</string>
+
+    <!-- Notification Information -->
+    <string name="notification_title">Monitor Status</string>
+    <string name="notification_message">In progress…</string>
+    <string name="ticker_text">Ticker Text?</string>
 </resources>
