@@ -25,8 +25,6 @@ public class MonitorActivity extends Activity {
 
     private PendingIntent mPermissionIntent;
 
-    ArrayList<UsbDevice> mDevices;
-
     private static final String ACTION_USB_PERMISSION = "com.utoronto.caleb.pulseoximeterapp.action.USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
@@ -55,7 +53,6 @@ public class MonitorActivity extends Activity {
         setContentView(R.layout.activity_monitor);
         this.TAG = MainActivity.TAG;
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        this.mDevices = getAvailableDevices();
         startMonitorService();
     }
 
@@ -69,13 +66,14 @@ public class MonitorActivity extends Activity {
     }
 
     private void startMonitorService() {
+        ArrayList<UsbDevice> devices = getAvailableDevices();
         Log.d(TAG, "Attempting to start Monitor Service.");
         ArrayList<String> deviceNames = new ArrayList<>();
-        for (UsbDevice device: this.mDevices) {
+        for (UsbDevice device: devices) {
             if (!this.mUsbManager.hasPermission(device)) {
-                Log.d(TAG, "Missing permission for device. Requesting.");
                 this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions.");
+                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
+                finish();
                 return;
             } else {
                 deviceNames.add(device.getDeviceName());
