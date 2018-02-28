@@ -73,7 +73,6 @@ public class MonitorActivity extends Activity {
             if (!this.mUsbManager.hasPermission(device)) {
                 this.mUsbManager.requestPermission(device, this.mPermissionIntent);
                 Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
-                finish();
                 return;
             } else {
                 deviceNames.add(device.getDeviceName());
