@@ -41,17 +41,22 @@ public class FingerTipReader implements Runnable {
         monitorDevice(device);
     }
 
+    private void endMonitoring() {
+        Thread.currentThread().interrupt();
+    }
+
     private void monitorDevice(UsbDevice device) {
         int BUFFER_SIZE = 500;
         UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
-        while(true) {
+        while(!Thread.interrupted()) {
             byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
             int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
             if (result < 0) {
                 Log.d(TAG, "Usb read result is -1, ending loop");
-                break;
+                endMonitoring();
+                return;
             }
             String dataRead = bytesToHex(bytesIn);
             int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);

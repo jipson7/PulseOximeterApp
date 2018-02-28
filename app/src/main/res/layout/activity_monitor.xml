@@ -16,5 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="TextView" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="endMonitoring"
+            android:text="@string/stop_monitor_btn_lbl" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

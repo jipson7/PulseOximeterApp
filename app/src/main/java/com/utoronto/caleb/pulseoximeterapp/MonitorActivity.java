@@ -10,6 +10,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -92,6 +93,10 @@ public class MonitorActivity extends Activity {
         intent.setAction(MonitorService.ACTION_MONITOR);
         intent.putStringArrayListExtra(MonitorService.DEVICE_PARAM, deviceNames);
         startService(intent);
+    }
+
+    public void endMonitoring(View v) {
+        Log.d(TAG, "Stopping Monitor service and subtasks.");
     }
 
     private ArrayList<UsbDevice> getAvailableDevices() {

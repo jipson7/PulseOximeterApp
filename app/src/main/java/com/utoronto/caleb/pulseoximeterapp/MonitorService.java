@@ -36,6 +36,8 @@ public class MonitorService extends Service {
 
     private ArrayList<String> mDeviceNames;
 
+    private ArrayList<Thread> mMonitoringThreads;
+
     private UsbManager mUsbManager = null;
     private String mChannelId;
 
@@ -92,16 +94,31 @@ public class MonitorService extends Service {
 
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
+        mMonitoringThreads = new ArrayList<>();
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         for (String deviceName: mDeviceNames) {
             UsbDevice device = deviceList.get(deviceName);
             switch (device.getProductName()) {
                 case "USBUART":
                     FingerTipReader fingerTipReader = new FingerTipReader(deviceName, this);
-                    new Thread(fingerTipReader).start();
+                    Thread thread = new Thread(fingerTipReader);
+                    thread.start();
+                    mMonitoringThreads.add(thread);
             }
         }
+        //waitForThreads();
+        Log.d(TAG, "End Monitoring.");
         //stopSelf();
+    }
+
+    private void waitForThreads() {
+        for (Thread thread: mMonitoringThreads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
