@@ -39,8 +39,6 @@ public class MonitorService extends Service {
     private ArrayList<Thread> mMonitoringThreads;
 
     private UsbManager mUsbManager = null;
-    private String mChannelId;
-
 
     @Override
     public void onCreate() {
@@ -70,21 +68,11 @@ public class MonitorService extends Service {
         Intent intent = new Intent(this, MonitorActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        //Create Notification Channel
-        mChannelId = getString(R.string.channel_id);
-        String name = getString(R.string.channel_name);
-        String desc = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel(mChannelId, name, importance);
-        channel.setDescription(desc);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.createNotificationChannel(channel);
-
         //Create notification
-        Notification notification = new Notification.Builder(this, mChannelId)
+        Notification notification = new Notification.Builder(this)
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_message))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                //.setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build();

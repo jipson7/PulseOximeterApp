@@ -102,6 +102,7 @@ public class MonitorActivity extends Activity {
         if (mMonitorService != null) {
             stopService(mMonitorService);
         }
+        finish();
     }
 
     private ArrayList<UsbDevice> getAvailableDevices() {

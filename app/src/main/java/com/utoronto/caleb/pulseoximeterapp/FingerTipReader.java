@@ -50,6 +50,8 @@ public class FingerTipReader implements Runnable {
         UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
+        Log.d(TAG, connection.toString());
+
         while(!Thread.interrupted()) {
             byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
             int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
