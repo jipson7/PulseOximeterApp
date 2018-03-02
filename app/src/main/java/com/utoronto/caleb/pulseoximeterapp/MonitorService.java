@@ -106,18 +106,23 @@ public class MonitorService extends Service {
                     mMonitoringThreads.add(thread);
             }
         }
-        //waitForThreads();
-        Log.d(TAG, "End Monitoring.");
-        //stopSelf();
     }
 
     private void waitForThreads() {
+        Log.d(TAG, "Waiting for threads.");
         for (Thread thread: mMonitoringThreads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void killThreads() {
+        Log.d(TAG, "Killing threads.");
+        for (Thread thread: mMonitoringThreads) {
+            thread.interrupt();
         }
     }
 
@@ -128,6 +133,8 @@ public class MonitorService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Stopping service");
+        killThreads();
+        Toast.makeText(this, "Monitoring Stopped.", Toast.LENGTH_SHORT).show();
     }
 }

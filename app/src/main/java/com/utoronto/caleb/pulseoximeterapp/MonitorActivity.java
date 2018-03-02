@@ -22,6 +22,8 @@ public class MonitorActivity extends Activity {
     UsbManager mUsbManager;
     String TAG;
 
+    Intent mMonitorService = null;
+
     final String SENSOR_FINGERTIP = "USBUART";
 
     private PendingIntent mPermissionIntent;
@@ -89,14 +91,17 @@ public class MonitorActivity extends Activity {
 
         Log.d(TAG, "Starting Monitor service with " + deviceNames.size() + " devices.");
 
-        Intent intent = new Intent(this, MonitorService.class);
-        intent.setAction(MonitorService.ACTION_MONITOR);
-        intent.putStringArrayListExtra(MonitorService.DEVICE_PARAM, deviceNames);
-        startService(intent);
+        mMonitorService = new Intent(this, MonitorService.class);
+        mMonitorService.setAction(MonitorService.ACTION_MONITOR);
+        mMonitorService.putStringArrayListExtra(MonitorService.DEVICE_PARAM, deviceNames);
+        startService(mMonitorService);
     }
 
     public void endMonitoring(View v) {
         Log.d(TAG, "Stopping Monitor service and subtasks.");
+        if (mMonitorService != null) {
+            stopService(mMonitorService);
+        }
     }
 
     private ArrayList<UsbDevice> getAvailableDevices() {
