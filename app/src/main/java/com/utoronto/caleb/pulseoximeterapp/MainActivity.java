@@ -46,6 +46,8 @@ public class MainActivity extends Activity {
             Log.d(TAG, "Product Name: " + productName);
             String manufacturerName = device.getManufacturerName();
             Log.d(TAG, "Manufacturer Name: " + manufacturerName);
+            String serial = device.getSerialNumber();
+            Log.d(TAG, "Serial No: " + device.getSerialNumber());
         }
     }
 

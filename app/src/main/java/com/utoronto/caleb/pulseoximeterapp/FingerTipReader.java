@@ -46,17 +46,20 @@ public class FingerTipReader implements Runnable {
     }
 
     private void monitorDevice(UsbDevice device) {
-        int BUFFER_SIZE = 500;
+        int BUFFER_SIZE = 1000;
         UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
-        Log.d(TAG, connection.toString());
+        //connection.controlTransfer(0x21, 0x22, 0x1, 0, null, 0, 0);
 
-        while(!Thread.interrupted()) {
+        //Log.d(TAG, "Serial #: " + connection.getSerial());
+
+        while(!Thread.interrupted()) { // TODO remove true statement
             byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
+            Log.d(TAG, "Max packet size: " + usbEndpoint.getMaxPacketSize());
             int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
             if (result < 0) {
-                Log.d(TAG, "Usb read result is -1, ending loop");
+                Log.d(TAG, "Usb read result is " + result + ", ending loop");
                 endMonitoring();
                 return;
             }
@@ -78,7 +81,7 @@ public class FingerTipReader implements Runnable {
                     inEndpoint = usbInterface.getEndpoint(j);
                     if (inEndpoint != null && inEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
                         Log.d(TAG, "BulkIn endpoint found. ");
-                        break;
+                        return inEndpoint;
                     }
                 }
             }

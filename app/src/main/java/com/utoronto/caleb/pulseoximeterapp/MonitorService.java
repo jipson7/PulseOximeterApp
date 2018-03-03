@@ -2,8 +2,6 @@ package com.utoronto.caleb.pulseoximeterapp;
 
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -72,11 +70,11 @@ public class MonitorService extends Service {
         Notification notification = new Notification.Builder(this)
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_message))
-                //.setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(pIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build();
         startForeground(MONITOR_NOTIFICATION_ID, notification);
+
     }
 
 

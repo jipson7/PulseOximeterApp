@@ -16,9 +16,6 @@
     <string name="product_name_fingertip">USBUART</string>
 
     <!-- Notification Information -->
-    <string name="channel_id">monitor_service_channel</string>
-    <string name="channel_name">Monitor Channel</string>
-    <string name="channel_description">Information on device monitoring</string>
     <string name="notification_title">Monitor Status</string>
     <string name="notification_message">In progress…</string>
     <string name="ticker_text">Ticker Text?</string>
