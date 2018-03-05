@@ -18,7 +18,7 @@ import java.util.HashMap;
  * Created by caleb on 2018-02-24.
  */
 
-public class FingerTipReader implements Runnable {
+public class FingerTipReader extends Thread {
 
     private String TAG = "FINGERTIP_READER";
 
@@ -26,7 +26,12 @@ public class FingerTipReader implements Runnable {
 
     private UsbManager mUsbManager = null;
 
-    Context mContext;
+    private Context mContext;
+
+    private UsbSerialDevice mSerial;
+
+    volatile boolean running = true;
+
 
     public FingerTipReader(String deviceName, Context context) {
         this.mDeviceName = deviceName;
@@ -49,51 +54,26 @@ public class FingerTipReader implements Runnable {
         @Override
         public void onReceivedData(byte[] arg0)
         {
-            Log.d(TAG, "DATA Received");
+            if (!running) {
+                mSerial.close();
+                return;
+            }
+            String dataRead = bytesToHex(arg0);
+            int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+            int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+            int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
+            Log.d(TAG, currHeartRate + " " + currSpo2 + " " + currBP);
         }
 
     };
 
     private void monitorDevice(UsbDevice device) {
-        int BUFFER_SIZE = 1000;
-        UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
+
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
-        UsbSerialDevice serial = UsbSerialDevice.createUsbSerialDevice(device, connection);
-        
-        serial.read(mCallback);
-
-        /*while(!Thread.interrupted()) {
-            byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
-            int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
-            if (result < 0) {
-                Log.d(TAG, "Usb read result is " + result + ", ending loop");
-                return;
-            }
-            String dataRead = bytesToHex(bytesIn);
-            int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-            int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
-            int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            Log.d(TAG, currHeartRate + " " + currSpo2 + " " + currBP);
-        }*/
-    }
-
-
-    private UsbEndpoint getBulkInEndpoint(UsbDevice device) {
-        UsbEndpoint inEndpoint = null;
-        for (int i = 0; i < device.getInterfaceCount(); i++) {
-            UsbInterface usbInterface = device.getInterface(i);
-            for (int j = 0; j < usbInterface.getEndpointCount(); j++) {
-                if (usbInterface.getEndpoint(j).getDirection() == UsbConstants.USB_DIR_IN) {
-                    inEndpoint = usbInterface.getEndpoint(j);
-                    if (inEndpoint != null && inEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                        Log.d(TAG, "BulkIn endpoint found. ");
-                        return inEndpoint;
-                    }
-                }
-            }
-        }
-        return inEndpoint;
+        mSerial = UsbSerialDevice.createUsbSerialDevice(device, connection);
+        mSerial.open();
+        mSerial.read(mCallback);
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -105,5 +85,9 @@ public class FingerTipReader implements Runnable {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public void stopMonitor() {
+        this.running = false;
     }
 }

@@ -36,9 +36,7 @@ public class MonitorService extends Service {
 
     private ArrayList<String> mDeviceNames;
 
-    private ArrayList<Thread> mMonitoringThreads;
-
-    private Timer mMonitorStatusChecker = null;
+    private FingerTipReader mFingerTipReader;
 
     private UsbManager mUsbManager = null;
 
@@ -84,51 +82,26 @@ public class MonitorService extends Service {
 
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
-        mMonitoringThreads = new ArrayList<>();
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         for (String deviceName: mDeviceNames) {
             UsbDevice device = deviceList.get(deviceName);
             switch (device.getProductName()) {
                 case "USBUART":
-                    FingerTipReader fingerTipReader = new FingerTipReader(deviceName, this);
-                    Thread thread = new Thread(fingerTipReader);
-                    thread.start();
-                    mMonitoringThreads.add(thread);
+                    mFingerTipReader = new FingerTipReader(deviceName, this);
+                    mFingerTipReader.start();
             }
         }
-        //spawnMonitoringStatusChecker();
-    }
-
-    private void spawnMonitoringStatusChecker() {
-        int seconds = 1;
-        mMonitorStatusChecker = new Timer();
-        mMonitorStatusChecker.schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "Polling Monitor Threads for Status...");
-                for (Thread thread: mMonitoringThreads) {
-                    if (!thread.isAlive()) {
-                        Log.d(TAG, "Thread Dead. Cleaning up");
-                        cleanup();
-                        stopSelf();
-                    }
-                }
-            }
-
-        },0,1000 * seconds);
     }
 
     private void killThreads() {
         Log.d(TAG, "Killing threads.");
-        for (Thread thread: mMonitoringThreads) {
-            thread.interrupt();
+        if (mFingerTipReader != null) {
+            mFingerTipReader.stopMonitor();
         }
     }
 
     private void cleanup() {
         Log.d(TAG, "Stopping service");
-        mMonitorStatusChecker.cancel();
         killThreads();
     }
 
