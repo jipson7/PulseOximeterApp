@@ -8,6 +8,7 @@
 
     <!-- Monitor Activity -->
     <string name="stop_monitor_btn_lbl">Stop Monitoring</string>
+    <string name="close_monitor_btn_lbl">Close</string>
 
     <!-- Toasts -->
     <string name="no_devices">No supported devices attached.</string>

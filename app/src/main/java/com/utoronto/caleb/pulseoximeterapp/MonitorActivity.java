@@ -104,6 +104,9 @@ public class MonitorActivity extends Activity {
         }
         finish();
     }
+    public void closeWindow(View v) {
+        finish();
+    }
 
     private ArrayList<UsbDevice> getAvailableDevices() {
         ArrayList<UsbDevice> devices = new ArrayList<>();

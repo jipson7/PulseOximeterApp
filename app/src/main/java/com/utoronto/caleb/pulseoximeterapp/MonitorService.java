@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -35,6 +37,8 @@ public class MonitorService extends Service {
     private ArrayList<String> mDeviceNames;
 
     private ArrayList<Thread> mMonitoringThreads;
+
+    private Timer mMonitorStatusChecker = null;
 
     private UsbManager mUsbManager = null;
 
@@ -92,17 +96,27 @@ public class MonitorService extends Service {
                     mMonitoringThreads.add(thread);
             }
         }
+        spawnMonitoringStatusChecker();
     }
 
-    private void waitForThreads() {
-        Log.d(TAG, "Waiting for threads.");
-        for (Thread thread: mMonitoringThreads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    private void spawnMonitoringStatusChecker() {
+        int seconds = 1;
+        mMonitorStatusChecker = new Timer();
+        mMonitorStatusChecker.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                Log.d(TAG, "Polling Monitor Threads for Status...");
+                for (Thread thread: mMonitoringThreads) {
+                    if (!thread.isAlive()) {
+                        Log.d(TAG, "Thread Dead. Cleaning up");
+                        cleanup();
+                        stopSelf();
+                    }
+                }
             }
-        }
+
+        },0,1000 * seconds);
     }
 
     private void killThreads() {
@@ -112,6 +126,12 @@ public class MonitorService extends Service {
         }
     }
 
+    private void cleanup() {
+        Log.d(TAG, "Stopping service");
+        mMonitorStatusChecker.cancel();
+        killThreads();
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -119,8 +139,6 @@ public class MonitorService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "Stopping service");
-        killThreads();
-        Toast.makeText(this, "Monitoring Stopped.", Toast.LENGTH_SHORT).show();
+        cleanup();
     }
 }
