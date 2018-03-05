@@ -96,7 +96,7 @@ public class MonitorService extends Service {
                     mMonitoringThreads.add(thread);
             }
         }
-        spawnMonitoringStatusChecker();
+        //spawnMonitoringStatusChecker();
     }
 
     private void spawnMonitoringStatusChecker() {

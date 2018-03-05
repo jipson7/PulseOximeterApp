@@ -9,6 +9,9 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
+import com.felhr.usbserial.UsbSerialDevice;
+import com.felhr.usbserial.UsbSerialInterface;
+
 import java.util.HashMap;
 
 /**
@@ -41,12 +44,26 @@ public class FingerTipReader implements Runnable {
         monitorDevice(device);
     }
 
+    private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
+
+        @Override
+        public void onReceivedData(byte[] arg0)
+        {
+            Log.d(TAG, "DATA Received");
+        }
+
+    };
+
     private void monitorDevice(UsbDevice device) {
         int BUFFER_SIZE = 1000;
         UsbEndpoint usbEndpoint = getBulkInEndpoint(device);
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
 
-        while(!Thread.interrupted()) {
+        UsbSerialDevice serial = UsbSerialDevice.createUsbSerialDevice(device, connection);
+        
+        serial.read(mCallback);
+
+        /*while(!Thread.interrupted()) {
             byte[] bytesIn = new byte[usbEndpoint.getMaxPacketSize()];
             int result = connection.bulkTransfer(usbEndpoint, bytesIn, bytesIn.length, BUFFER_SIZE);
             if (result < 0) {
@@ -58,7 +75,7 @@ public class FingerTipReader implements Runnable {
             int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
             int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
             Log.d(TAG, currHeartRate + " " + currSpo2 + " " + currBP);
-        }
+        }*/
     }
 
 
