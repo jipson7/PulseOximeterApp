@@ -32,10 +32,13 @@ public class FingerTipReader extends Thread {
 
     volatile boolean running = true;
 
+    private UsbDataHandler mHandler;
 
-    public FingerTipReader(String deviceName, Context context) {
+
+    public FingerTipReader(String deviceName, Context context, UsbDataHandler handler) {
         this.mDeviceName = deviceName;
         this.mContext = context;
+        this.mHandler = handler;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class FingerTipReader extends Thread {
             int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
             int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
             int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            Log.d(TAG, currHeartRate + " " + currSpo2 + " " + currBP);
+            mHandler.handleIncomingData(currHeartRate, currSpo2, currBP);
         }
 
     };

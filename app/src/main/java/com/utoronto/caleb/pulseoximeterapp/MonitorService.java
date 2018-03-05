@@ -24,7 +24,7 @@ import java.util.TimerTask;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class MonitorService extends Service {
+public class MonitorService extends Service implements UsbDataHandler {
 
     private final String TAG = "MONITOR_SERVICE";
 
@@ -87,7 +87,7 @@ public class MonitorService extends Service {
             UsbDevice device = deviceList.get(deviceName);
             switch (device.getProductName()) {
                 case "USBUART":
-                    mFingerTipReader = new FingerTipReader(deviceName, this);
+                    mFingerTipReader = new FingerTipReader(deviceName, this, this);
                     mFingerTipReader.start();
             }
         }
@@ -113,5 +113,10 @@ public class MonitorService extends Service {
     @Override
     public void onDestroy() {
         cleanup();
+    }
+
+    @Override
+    public void handleIncomingData(int hr, int spo2, int bp) {
+        Log.d(TAG, hr + " " + spo2 + " " + bp);
     }
 }
