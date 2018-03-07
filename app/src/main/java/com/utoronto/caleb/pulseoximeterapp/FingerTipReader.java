@@ -62,18 +62,16 @@ public class FingerTipReader extends Thread {
                 return;
             }
             String dataRead = bytesToHex(arg0);
-            int currHeartRate = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-            int currSpo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
-            int currBP = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            mHandler.handleIncomingData(currHeartRate, currSpo2, currBP);
+            int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+            int spo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+            int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
+            mHandler.handleIncomingData(hr, spo2, bp);
         }
 
     };
 
     private void monitorDevice(UsbDevice device) {
-
         UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
-
         mSerial = UsbSerialDevice.createUsbSerialDevice(device, connection);
         mSerial.open();
         mSerial.read(mCallback);

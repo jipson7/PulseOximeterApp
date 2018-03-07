@@ -44,7 +44,13 @@ public class MonitorActivity extends Activity {
                     }
                     else {
                         Log.d(TAG, "permission denied for device " + device);
+                        finish();
                     }
+                }
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (device != null) {
+                    Log.e(TAG, "Device was disconnected");
                 }
             }
         }
@@ -56,21 +62,22 @@ public class MonitorActivity extends Activity {
         setContentView(R.layout.activity_monitor);
         this.TAG = MainActivity.TAG;
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        registerReceiver(mUsbReceiver, filter);
         startMonitorService();
     }
 
     @Override
     protected void onResume() {
         Log.d(TAG, "Starting Monitor activity");
-        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        registerReceiver(mUsbReceiver, filter);
+
         super.onResume();
     }
 
     private void startMonitorService() {
-        ArrayList<UsbDevice> devices = getAvailableDevices();
         Log.d(TAG, "Attempting to start Monitor Service.");
+        ArrayList<UsbDevice> devices = getAvailableDevices();
         ArrayList<String> deviceNames = new ArrayList<>();
         for (UsbDevice device: devices) {
             if (!this.mUsbManager.hasPermission(device)) {
@@ -104,6 +111,7 @@ public class MonitorActivity extends Activity {
         }
         finish();
     }
+
     public void closeWindow(View v) {
         finish();
     }
@@ -128,8 +136,8 @@ public class MonitorActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onDestroy() {
         unregisterReceiver(mUsbReceiver);
-        super.onPause();
+        super.onDestroy();
     }
 }
