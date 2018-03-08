@@ -31,11 +31,6 @@ public class MonitorService extends Service implements UsbDataHandler {
     private UsbManager mUsbManager = null;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotification();
         if (mUsbManager == null) {
@@ -83,18 +78,6 @@ public class MonitorService extends Service implements UsbDataHandler {
         }
     }
 
-    private void killThreads() {
-        Log.d(TAG, "Killing threads.");
-        if (mFingerTipReader != null) {
-            mFingerTipReader.stopMonitor();
-        }
-    }
-
-    private void cleanup() {
-        Log.d(TAG, "Stopping service");
-        killThreads();
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -102,11 +85,19 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     @Override
     public void onDestroy() {
-        cleanup();
+        endUsbConnections();
     }
 
     @Override
     public void handleIncomingData(int hr, int spo2, int bp) {
         Log.d(TAG, hr + " " + spo2 + " " + bp);
+    }
+
+    @Override
+    public void endUsbConnections() {
+        Log.d(TAG, "Killing threads.");
+        if (mFingerTipReader != null) {
+            mFingerTipReader.stopMonitor();
+        }
     }
 }

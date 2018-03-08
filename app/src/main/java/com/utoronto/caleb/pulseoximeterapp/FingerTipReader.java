@@ -57,8 +57,9 @@ public class FingerTipReader extends Thread {
         @Override
         public void onReceivedData(byte[] arg0)
         {
-            if (!running) {
+            if (!running || arg0.length == 0) {
                 mSerial.close();
+                mHandler.endUsbConnections();
                 return;
             }
             String dataRead = bytesToHex(arg0);
