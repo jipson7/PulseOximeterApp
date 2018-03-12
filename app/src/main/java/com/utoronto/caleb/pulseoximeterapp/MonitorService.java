@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -22,24 +23,41 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
 
-    public static final String DEVICE_PARAM = "com.utoronto.caleb.pulseoximeterapp.param.DEVICE_PARAMETER";
-
     private ArrayList<String> mDeviceNames;
 
-    private FingerTipReader mFingerTipReader;
+    private FingerTipReader mFingerTipReader = null;
 
     private UsbManager mUsbManager = null;
 
+    private Notification mNotification = null;
+
+    private boolean isMonitoring = false;
+
+    private final IBinder mBinder = new MonitorBinder();
+
+    public class MonitorBinder extends Binder {
+        MonitorService getService() {
+            return MonitorService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        createNotification();
+        if (mNotification == null) {
+            createNotification();
+        }
         if (mUsbManager == null) {
             mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         }
         if (intent != null) {
             final String action = intent.getAction();
-            if (action.equals(ACTION_MONITOR)) {
-                mDeviceNames = intent.getStringArrayListExtra(DEVICE_PARAM);
+            if (action.equals(ACTION_MONITOR) && !isMonitoring) {
+                mDeviceNames = intent.getStringArrayListExtra(MainActivity.DEVICE_PARAM);
                 monitor();
             }
         }
@@ -47,21 +65,20 @@ public class MonitorService extends Service implements UsbDataHandler {
     }
 
 
-
     private void createNotification() {
+        //TODO ensure this notification behaves the same in API 23 as 26
         //Go to this intent if Notification is clicked
         Intent intent = new Intent(this, MonitorActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         //Create notification
-        Notification notification = new Notification.Builder(this)
+        mNotification = new Notification.Builder(this)
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_message))
                 .setContentIntent(pIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build();
-        startForeground(MONITOR_NOTIFICATION_ID, notification);
-
+        startForeground(MONITOR_NOTIFICATION_ID, mNotification);
     }
 
 
@@ -70,17 +87,13 @@ public class MonitorService extends Service implements UsbDataHandler {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         for (String deviceName: mDeviceNames) {
             UsbDevice device = deviceList.get(deviceName);
-            switch (device.getProductName()) {
-                case "USBUART":
-                    mFingerTipReader = new FingerTipReader(deviceName, this, this);
-                    mFingerTipReader.start();
+            String name = device.getProductName();
+            if (Device.FINGERTIP.nameEquals(name)) {
+                mFingerTipReader = new FingerTipReader(deviceName, this, this);
+                mFingerTipReader.start();
             }
         }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+        isMonitoring = true;
     }
 
     @Override
@@ -99,5 +112,6 @@ public class MonitorService extends Service implements UsbDataHandler {
         if (mFingerTipReader != null) {
             mFingerTipReader.stopMonitor();
         }
+        isMonitoring = false;
     }
 }

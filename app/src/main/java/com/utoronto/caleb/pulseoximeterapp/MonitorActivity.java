@@ -3,12 +3,15 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -18,41 +21,25 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MonitorActivity extends Activity {
-    
-    UsbManager mUsbManager;
-    String TAG;
+    private final String TAG = "MONITOR_ACTIVITY";
 
-    Intent mMonitorService = null;
+    Intent mMonitorServiceIntent = null;
+    private MonitorService mMonitorService;
+    private boolean mBound = false;
+    ArrayList<String> mDeviceNames;
 
-    final String SENSOR_FINGERTIP = "USBUART";
 
-    private PendingIntent mPermissionIntent;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            MonitorService.MonitorBinder binder = (MonitorService.MonitorBinder) service;
+            mMonitorService = binder.getService();
+            mBound = true;
+        }
 
-    private static final String ACTION_USB_PERMISSION = "com.utoronto.caleb.pulseoximeterapp.action.USB_PERMISSION";
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                synchronized (this) {
-                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if(device != null){
-                            startMonitorService();
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "permission denied for device " + device);
-                        finish();
-                    }
-                }
-            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device != null) {
-                    Log.e(TAG, "Device was disconnected");
-                }
-            }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBound = false;
         }
     };
 
@@ -60,54 +47,27 @@ public class MonitorActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
-        this.TAG = MainActivity.TAG;
-        this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        registerReceiver(mUsbReceiver, filter);
+        mDeviceNames = getIntent().getStringArrayListExtra(MainActivity.DEVICE_PARAM);
         startMonitorService();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "Starting Monitor activity");
-
-        super.onResume();
+        bindMonitorService();
     }
 
     private void startMonitorService() {
-        Log.d(TAG, "Attempting to start Monitor Service.");
-        ArrayList<UsbDevice> devices = getAvailableDevices();
-        ArrayList<String> deviceNames = new ArrayList<>();
-        for (UsbDevice device: devices) {
-            if (!this.mUsbManager.hasPermission(device)) {
-                this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
-                return;
-            } else {
-                deviceNames.add(device.getDeviceName());
-            }
-        }
+        Log.d(TAG, "Starting Monitor service with " + mDeviceNames.size() + " devices.");
+        mMonitorServiceIntent = new Intent(this, MonitorService.class);
+        mMonitorServiceIntent.setAction(MonitorService.ACTION_MONITOR);
+        mMonitorServiceIntent.putStringArrayListExtra(MainActivity.DEVICE_PARAM, mDeviceNames);
+        startService(mMonitorServiceIntent);
+    }
 
-        if (deviceNames.size() == 0) {
-            Toast.makeText(this, R.string.no_devices, Toast.LENGTH_LONG).show();
-            Log.e(TAG,"Cannot start Monitoring service with 0 useable devices attached.");
-            finish();
-            return;
-        }
-
-        Log.d(TAG, "Starting Monitor service with " + deviceNames.size() + " devices.");
-
-        mMonitorService = new Intent(this, MonitorService.class);
-        mMonitorService.setAction(MonitorService.ACTION_MONITOR);
-        mMonitorService.putStringArrayListExtra(MonitorService.DEVICE_PARAM, deviceNames);
-        startService(mMonitorService);
+    private void bindMonitorService() {
+        bindService(mMonitorServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     public void endMonitoring(View v) {
         Log.d(TAG, "Stopping Monitor service and subtasks.");
-        if (mMonitorService != null) {
-            stopService(mMonitorService);
+        if (mMonitorServiceIntent != null) {
+            stopService(mMonitorServiceIntent);
         }
         finish();
     }
@@ -116,28 +76,11 @@ public class MonitorActivity extends Activity {
         finish();
     }
 
-    private ArrayList<UsbDevice> getAvailableDevices() {
-        ArrayList<UsbDevice> devices = new ArrayList<>();
-        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
-        Iterator it = deviceList.values().iterator();
-        Log.d(TAG, deviceList.size() + " devices detected.");
-        while (it.hasNext()) {
-            UsbDevice device = (UsbDevice) it.next();
-            Log.d(TAG, "Checking " + device.getProductName() + ".");
-            switch (device.getProductName()) {
-                case SENSOR_FINGERTIP:
-                    Log.d(TAG, "Fingertip Sensor detected");
-                    devices.add(device);
-                    break;
-            }
-            it.remove();
-        }
-        return devices;
-    }
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(mUsbReceiver);
         super.onDestroy();
+        unbindService(mServiceConnection);
+        mBound = false;
     }
 }
