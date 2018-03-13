@@ -5,14 +5,20 @@ package com.utoronto.caleb.pulseoximeterapp;
  */
 
 public enum Device {
-    FINGERTIP ("USBUART");
+    FINGERTIP ("USBUART", "FingertipReader");
 
     private final String name;
-    Device(String name) {
+    private final String description;
+    Device(String name, String desc) {
         this.name = name;
+        this.description = desc;
     }
 
     public boolean nameEquals(String otherName) {
         return name.equals(otherName);
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

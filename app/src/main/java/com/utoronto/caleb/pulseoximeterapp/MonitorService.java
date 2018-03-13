@@ -105,8 +105,8 @@ public class MonitorService extends Service implements UsbDataHandler {
     }
 
     @Override
-    public void handleIncomingData(int hr, int spo2, int bp) {
-        Log.d(TAG, hr + " " + spo2 + " " + bp);
+    public void handleIncomingData(int hr, int spo2, int bp, long timestamp, String description) {
+        Log.d(TAG, hr + " " + spo2 + " " + bp + " " + timestamp + " " + description);
     }
 
     @Override
