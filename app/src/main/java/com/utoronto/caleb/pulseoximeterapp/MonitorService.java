@@ -3,8 +3,10 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
@@ -33,6 +35,11 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     private boolean isMonitoring = false;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
     private final IBinder mBinder = new MonitorBinder();
 
     public class MonitorBinder extends Binder {
@@ -48,17 +55,21 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mNotification == null) {
-            createNotification();
-        }
-        if (mUsbManager == null) {
-            mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        }
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (action.equals(ACTION_MONITOR) && !isMonitoring) {
-                mDeviceNames = intent.getStringArrayListExtra(MainActivity.DEVICE_PARAM);
-                monitor();
+        Log.d(TAG, "Running onStart");
+        if (!isMonitoring) {
+
+            if (mNotification == null) {
+                createNotification();
+            }
+            if (mUsbManager == null) {
+                mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+            }
+            if (intent != null) {
+                final String action = intent.getAction();
+                if (action.equals(ACTION_MONITOR)) {
+                    mDeviceNames = intent.getStringArrayListExtra(MainActivity.DEVICE_PARAM);
+                    monitor();
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -99,6 +110,7 @@ public class MonitorService extends Service implements UsbDataHandler {
     @Override
     public void onDestroy() {
         endUsbConnections();
+        Log.d(TAG, "Monitor service stopped.");
     }
 
     @Override
@@ -108,10 +120,15 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     @Override
     public void endUsbConnections() {
-        Log.d(TAG, "Killing threads.");
+        Log.d(TAG, "Ending USB Monitoring Threads.");
         if (mFingerTipReader != null) {
             mFingerTipReader.stopMonitor();
         }
+        endMonitoring();
+    }
+
+    private void endMonitoring() {
         isMonitoring = false;
+        stopSelf();
     }
 }

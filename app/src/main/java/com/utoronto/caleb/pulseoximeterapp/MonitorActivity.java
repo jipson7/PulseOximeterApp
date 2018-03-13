@@ -39,7 +39,9 @@ public class MonitorActivity extends Activity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "Service disconnected.");
             mBound = false;
+            MonitorActivity.this.finish();
         }
     };
 

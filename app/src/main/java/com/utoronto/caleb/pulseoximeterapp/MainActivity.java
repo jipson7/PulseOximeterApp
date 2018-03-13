@@ -67,23 +67,6 @@ public class MainActivity extends Activity {
         registerReceiver(mUsbReceiver, filter);
     }
 
-
-    private boolean checkDevicePermissions() {
-        ArrayList<UsbDevice> devices = getAvailableDevices();
-        mDeviceNames = new ArrayList<>();
-        for (UsbDevice device: devices) {
-            if (!this.mUsbManager.hasPermission(device)) {
-                this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
-                return false;
-            } else {
-                mDeviceNames.add(device.getDeviceName());
-            }
-        }
-
-        return (mDeviceNames.size() > 0);
-    }
-
     public void onClickDevicesBtn(View v) {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, deviceList.size() + " devices found.");
@@ -115,6 +98,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    private boolean checkDevicePermissions() {
+        ArrayList<UsbDevice> devices = getAvailableDevices();
+        mDeviceNames = new ArrayList<>();
+        for (UsbDevice device: devices) {
+            if (!this.mUsbManager.hasPermission(device)) {
+                this.mUsbManager.requestPermission(device, this.mPermissionIntent);
+                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
+                return false;
+            } else {
+                mDeviceNames.add(device.getDeviceName());
+            }
+        }
+
+        return (mDeviceNames.size() > 0);
+    }
+
     private ArrayList<UsbDevice> getAvailableDevices() {
         ArrayList<UsbDevice> devices = new ArrayList<>();
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
@@ -123,7 +122,6 @@ public class MainActivity extends Activity {
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
             String name = device.getProductName();
-            Log.d(TAG, "Checking " + name + ".");
             if (Device.FINGERTIP.nameEquals(name)) {
                 Log.d(TAG, "Fingertip Sensor detected");
                 devices.add(device);
