@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
                             Toast.makeText(MainActivity.this, R.string.device_granted, Toast.LENGTH_LONG).show();
+                            startMonitorActivity();
                         }
                     }
                     else {
@@ -88,6 +89,10 @@ public class MainActivity extends Activity {
     }
 
     public void onClickMonitorBtn(View v) {
+        startMonitorActivity();
+    }
+
+    private void startMonitorActivity() {
         if (checkDevicePermissions()) {
             Intent intent = new Intent(this, MonitorActivity.class);
             intent.putStringArrayListExtra(DEVICE_PARAM, mDeviceNames);
