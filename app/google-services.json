@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "299724722089",
+    "firebase_url": "https://pulseoximeterapp.firebaseio.com",
+    "project_id": "pulseoximeterapp",
+    "storage_bucket": "pulseoximeterapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299724722089:android:59df887f14c1e588",
+        "android_client_info": {
+          "package_name": "com.utoronto.caleb.pulseoximeterapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299724722089-3c150if6252kmv9hlonafqrc7d4t6j6t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.utoronto.caleb.pulseoximeterapp",
+            "certificate_hash": "98dce971ec275748fe4bb1b8676023066cfc440f"
+          }
+        },
+        {
+          "client_id": "299724722089-he7iherr5u0r8cnrujg0flkt5ashcttq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjfnTzcEU6j0K4tn-mLXqHkGVQjpW3f8U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299724722089-he7iherr5u0r8cnrujg0flkt5ashcttq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
