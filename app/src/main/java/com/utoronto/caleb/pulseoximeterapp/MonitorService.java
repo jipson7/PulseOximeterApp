@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
@@ -29,12 +30,20 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     private FingerTipReader mFingerTipReader = null;
 
+    private DataVisualizer mDataVisualizer = null;
+
+    private DBHelper mDBHelper = new DBHelper();
+
     @Override
     public void onCreate() {
         super.onCreate();
     }
 
     private final IBinder mBinder = new MonitorBinder();
+
+    public void setDataVisualizer(DataVisualizer dataVisualizer) {
+        mDataVisualizer = dataVisualizer;
+    }
 
     public class MonitorBinder extends Binder {
         MonitorService getService() {
@@ -45,6 +54,12 @@ public class MonitorService extends Service implements UsbDataHandler {
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        mDataVisualizer = null;
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -105,8 +120,11 @@ public class MonitorService extends Service implements UsbDataHandler {
     }
 
     @Override
-    public void handleIncomingData(int hr, int spo2, int bp, long timestamp, String description) {
-        Log.d(TAG, hr + " " + spo2 + " " + bp + " " + timestamp + " " + description);
+    public void handleIncomingData(int hr, int spo2, int bp, long timestamp, Device device) {
+        if (mDataVisualizer != null) {
+            mDataVisualizer.updateUI(device.getDescription(), timestamp, spo2);
+        }
+        mDBHelper.saveData(hr, spo2, bp, timestamp, device);
     }
 
     @Override
@@ -115,8 +133,15 @@ public class MonitorService extends Service implements UsbDataHandler {
         if (mFingerTipReader != null) {
             mFingerTipReader.stopMonitor();
         }
+        endMonitoring();
+    }
+
+    private void endMonitoring() {
+        mDBHelper.endSession();
         isMonitoring = false;
         Intent i = new Intent(MonitorActivity.ACTION_STOP_MONITOR);
         sendBroadcast(i);
+        stopForeground(true);
+        stopSelf();
     }
 }

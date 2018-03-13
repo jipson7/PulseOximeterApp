@@ -67,7 +67,7 @@ public class FingerTipReader extends Thread implements CustomDeviceReader {
             int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
             int spo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
             int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            mHandler.handleIncomingData(hr, spo2, bp, millis, Device.FINGERTIP.getDescription());
+            mHandler.handleIncomingData(hr, spo2, bp, millis, Device.FINGERTIP);
         }
 
     };

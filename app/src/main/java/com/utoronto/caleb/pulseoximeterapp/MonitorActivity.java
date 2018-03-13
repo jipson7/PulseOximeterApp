@@ -14,7 +14,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-public class MonitorActivity extends Activity {
+public class MonitorActivity extends Activity implements DataVisualizer {
     private final String TAG = "MONITOR_ACTIVITY";
 
     public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
@@ -43,6 +43,7 @@ public class MonitorActivity extends Activity {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             MonitorService.MonitorBinder binder = (MonitorService.MonitorBinder) service;
             mMonitorService = binder.getService();
+            mMonitorService.setDataVisualizer(MonitorActivity.this);
             mBound = true;
         }
 
@@ -98,5 +99,11 @@ public class MonitorActivity extends Activity {
         unregisterReceiver(mReceiver);
         unbindService(mServiceConnection);
         mBound = false;
+    }
+
+
+    @Override
+    public void updateUI(String device, long timestamp, int spo2) {
+        Log.d(TAG,spo2 + " " + timestamp + " " + device);
     }
 }
