@@ -21,7 +21,7 @@
             android:id="@+id/button1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="endMonitoring"
+            android:onClick="btnClickEndMonitoring"
             android:text="@string/stop_monitor_btn_lbl" />
 
         <Button

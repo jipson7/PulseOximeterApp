@@ -18,7 +18,7 @@ import java.util.HashMap;
  * Created by caleb on 2018-02-24.
  */
 
-public class FingerTipReader extends Thread {
+public class FingerTipReader extends Thread implements CustomDeviceReader {
 
     private String TAG = "FINGERTIP_READER";
 
@@ -89,7 +89,9 @@ public class FingerTipReader extends Thread {
         return new String(hexChars);
     }
 
+    @Override
     public void stopMonitor() {
         this.running = false;
+        this.interrupt();
     }
 }

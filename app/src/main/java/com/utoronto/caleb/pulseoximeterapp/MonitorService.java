@@ -3,10 +3,8 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
@@ -23,17 +21,13 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     public static final int MONITOR_NOTIFICATION_ID = 1234;
 
-    public static final String ACTION_MONITOR = "com.utoronto.caleb.pulseoximeterapp.action.MONITOR";
-
-    private ArrayList<String> mDeviceNames;
-
-    private FingerTipReader mFingerTipReader = null;
+    private ArrayList<String> mDeviceNames = null;
 
     private UsbManager mUsbManager = null;
 
-    private Notification mNotification = null;
-
     private boolean isMonitoring = false;
+
+    private FingerTipReader mFingerTipReader = null;
 
     @Override
     public void onCreate() {
@@ -57,16 +51,14 @@ public class MonitorService extends Service implements UsbDataHandler {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Running onStart");
         if (!isMonitoring) {
-
-            if (mNotification == null) {
-                createNotification();
-            }
+            isMonitoring = true;
             if (mUsbManager == null) {
                 mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
             }
+            createNotification();
             if (intent != null) {
                 final String action = intent.getAction();
-                if (action.equals(ACTION_MONITOR)) {
+                if (action.equals(MonitorActivity.ACTION_MONITOR)) {
                     mDeviceNames = intent.getStringArrayListExtra(MainActivity.DEVICE_PARAM);
                     monitor();
                 }
@@ -75,7 +67,6 @@ public class MonitorService extends Service implements UsbDataHandler {
         return super.onStartCommand(intent, flags, startId);
     }
 
-
     private void createNotification() {
         //TODO ensure this notification behaves the same in API 23 as 26
         //Go to this intent if Notification is clicked
@@ -83,15 +74,14 @@ public class MonitorService extends Service implements UsbDataHandler {
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         //Create notification
-        mNotification = new Notification.Builder(this)
+        Notification notification = new Notification.Builder(this)
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText(getText(R.string.notification_message))
                 .setContentIntent(pIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build();
-        startForeground(MONITOR_NOTIFICATION_ID, mNotification);
+        startForeground(MONITOR_NOTIFICATION_ID, notification);
     }
-
 
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
@@ -100,11 +90,12 @@ public class MonitorService extends Service implements UsbDataHandler {
             UsbDevice device = deviceList.get(deviceName);
             String name = device.getProductName();
             if (Device.FINGERTIP.nameEquals(name)) {
-                mFingerTipReader = new FingerTipReader(deviceName, this, this);
-                mFingerTipReader.start();
+                if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
+                    mFingerTipReader = new FingerTipReader(deviceName, this, this);
+                    mFingerTipReader.start();
+                }
             }
         }
-        isMonitoring = true;
     }
 
     @Override
@@ -124,11 +115,8 @@ public class MonitorService extends Service implements UsbDataHandler {
         if (mFingerTipReader != null) {
             mFingerTipReader.stopMonitor();
         }
-        endMonitoring();
-    }
-
-    private void endMonitoring() {
         isMonitoring = false;
-        stopSelf();
+        Intent i = new Intent(MonitorActivity.ACTION_STOP_MONITOR);
+        sendBroadcast(i);
     }
 }

@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
             intent.putStringArrayListExtra(DEVICE_PARAM, mDeviceNames);
             startActivity(intent);
         } else {
-            Toast.makeText(this, R.string.no_devices, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_devices, Toast.LENGTH_SHORT).show();
             Log.e(TAG,"Missing permission for supported device.");
         }
     }
