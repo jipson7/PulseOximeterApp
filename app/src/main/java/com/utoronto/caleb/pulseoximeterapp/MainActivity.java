@@ -63,13 +63,6 @@ public class MainActivity extends Activity {
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         setupUsbPermissionHandler();
         FirebaseApp.initializeApp(this);
-        //runTests();
-    }
-
-    //TODO remove this
-    private void runTests() {
-        DBHelper db = new DBHelper();
-        //db.testSave();
     }
 
     private void setupUsbPermissionHandler() {

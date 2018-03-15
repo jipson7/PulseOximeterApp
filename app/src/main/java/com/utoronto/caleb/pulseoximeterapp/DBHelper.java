@@ -63,18 +63,4 @@ public class DBHelper {
         trialUpdate.put("end", System.currentTimeMillis());
         mTrialsRef.updateChildren(trialUpdate);
     }
-
-/*    public void testSave() {
-        Log.d(TAG, "ATTEMPTING TO SAVE DATA.");
-        mTrialsRef.push().setValue(mTrial, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if (databaseError != null) {
-                    Log.d(TAG,"Data could not be saved " + databaseError.getMessage());
-                } else {
-                    Log.d(TAG,"Data saved successfully.");
-                }
-            }
-        });
-    }*/
 }
