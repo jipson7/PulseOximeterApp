@@ -1,82 +1,23 @@
 package com.utoronto.caleb.pulseoximeterapp;
 
 import android.content.Context;
-import android.hardware.usb.UsbConstants;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
-import android.hardware.usb.UsbManager;
-import android.util.Log;
 
-import com.felhr.usbserial.UsbSerialDevice;
-import com.felhr.usbserial.UsbSerialInterface;
-
-import java.util.HashMap;
-
-/**
- * Created by caleb on 2018-02-24.
- */
-
-public class FingerTipReader extends Thread implements CustomDeviceReader {
+public class FingerTipReader extends CustomDeviceReader {
 
     private String TAG = "FINGERTIP_READER";
 
-    private String mDeviceName;
-
-    private UsbManager mUsbManager = null;
-
-    private Context mContext;
-
-    private UsbSerialDevice mSerial;
-
-    volatile boolean running = true;
-
-    private UsbDataHandler mHandler;
-
-
     public FingerTipReader(String deviceName, Context context, UsbDataHandler handler) {
-        this.mDeviceName = deviceName;
-        this.mContext = context;
-        this.mHandler = handler;
+        super(deviceName, context, handler);
     }
 
     @Override
-    public void run() {
-        Log.d(TAG, "FingerTipReader Runnable Launched.");
-        if (mUsbManager == null) {
-            mUsbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-        }
-        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
-        UsbDevice device = deviceList.get(mDeviceName);
-        monitorDevice(device);
-    }
-
-    private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
-
-        @Override
-        public void onReceivedData(byte[] arg0)
-        {
-            if (!running || arg0.length == 0) {
-                mSerial.close();
-                mHandler.endUsbConnections();
-                return;
-            }
-            long millis = System.currentTimeMillis();
-            String dataRead = bytesToHex(arg0);
-            int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-            int spo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
-            int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-            mHandler.handleIncomingData(hr, spo2, bp, millis, Device.FINGERTIP);
-        }
-
-    };
-
-    private void monitorDevice(UsbDevice device) {
-        UsbDeviceConnection connection = this.mUsbManager.openDevice(device);
-        mSerial = UsbSerialDevice.createUsbSerialDevice(device, connection);
-        mSerial.open();
-        mSerial.read(mCallback);
+    public void saveData(byte[] bytes) {
+        long millis = System.currentTimeMillis();
+        String dataRead = bytesToHex(bytes);
+        int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+        int spo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+        int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
+        mHandler.handleIncomingData(hr, spo2, bp, millis, Device.FINGERTIP);
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -88,11 +29,5 @@ public class FingerTipReader extends Thread implements CustomDeviceReader {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
-    }
-
-    @Override
-    public void stopMonitor() {
-        this.running = false;
-        this.interrupt();
     }
 }
