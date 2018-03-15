@@ -20,8 +20,6 @@ public abstract class CustomDeviceReader extends Thread {
 
     public abstract void saveData(byte[] bytes);
 
-    public CustomDeviceReader() {}
-
     public CustomDeviceReader(String deviceName, Context context, UsbDataHandler handler) {
         this.mHandler = handler;
         this.mSerial = getDeviceSerial(deviceName, context);
