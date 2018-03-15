@@ -5,5 +5,5 @@ package com.utoronto.caleb.pulseoximeterapp;
  */
 
 public interface DataVisualizer {
-    public void updateUI(String device, long timestamp, int spo2);
+    public void updateUI(String device, int spo2);
 }

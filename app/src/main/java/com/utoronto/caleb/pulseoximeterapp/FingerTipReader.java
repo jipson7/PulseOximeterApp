@@ -2,6 +2,9 @@ package com.utoronto.caleb.pulseoximeterapp;
 
 import android.content.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class FingerTipReader extends CustomDeviceReader {
 
     private String TAG = "FINGERTIP_READER";
@@ -12,12 +15,21 @@ public class FingerTipReader extends CustomDeviceReader {
 
     @Override
     public void saveData(byte[] bytes) {
-        long millis = System.currentTimeMillis();
+        Map<String, Object> dataMap = new HashMap<>();
         String dataRead = bytesToHex(bytes);
         int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-        int spo2 = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+        boolean hrValid = (127 != hr);
+        int oxygen = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+        boolean oxygenValid = (127 != oxygen);
         int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-        mHandler.handleIncomingData(hr, spo2, bp, millis, Device.FINGERTIP);
+        boolean bpValid = (112 != bp);
+        dataMap.put(DataKeys.HR, hr);
+        dataMap.put(DataKeys.HR_VALID, hrValid);
+        dataMap.put(DataKeys.OXYGEN, oxygen);
+        dataMap.put(DataKeys.OXYGEN_VALID, oxygenValid);
+        dataMap.put(DataKeys.BP, bp);
+        dataMap.put(DataKeys.BP_VALID, bpValid);
+        mHandler.handleIncomingData(Device.FINGERTIP, dataMap);
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();

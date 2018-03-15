@@ -1,16 +1,9 @@
 package com.utoronto.caleb.pulseoximeterapp;
 
 
-import android.support.annotation.NonNull;
-import android.util.Log;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class DBHelper {
@@ -21,46 +14,34 @@ public class DBHelper {
 
     String collectionName = "trials";
 
-    DatabaseReference mTrialsRef;
-    DatabaseReference hrRef;
-    DatabaseReference oxygenRef;
-    DatabaseReference bpRef;
+    FirebaseFirestore db;
+
+    DocumentReference mTrialRef;
 
     public DBHelper() {
         setupTrial();
     }
 
     private void setupTrial() {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        mTrialsRef = database.getReference(collectionName).push();
+        db = FirebaseFirestore.getInstance();
         //TODO replace defaults
         String name = "defaultTrial";
         String description = "defaultDesc";
         mTrial = new Trial(name, description);
-        mTrialsRef.setValue(mTrial);
-        DatabaseReference dataRef = mTrialsRef.child("data");
-        hrRef = dataRef.child("hr");
-        oxygenRef = dataRef.child("oxygen");
-        bpRef = dataRef.child("bp");
+        mTrialRef = db.collection(collectionName).document();
+        mTrialRef.set(mTrial);
     }
 
-    public void saveData(int hr, int spo2, int bp, long timestamp, Device device) {
-        hrRef.child(device.getDescription())
-                .child(String.valueOf(timestamp))
-                .setValue(hr);
-
-        oxygenRef.child(device.getDescription())
-                .child(String.valueOf(timestamp))
-                .setValue(spo2);
-
-        bpRef.child(device.getDescription())
-                .child(String.valueOf(timestamp))
-                .setValue(bp);
+    public void saveData(Device device, Map<String, Object> data) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        mTrialRef.collection("devices")
+                .document(device.getDescription())
+                .collection("data")
+                .document(String.valueOf(timestamp))
+                .set(data);
     }
 
     public void endSession() {
-        Map<String, Object> trialUpdate = new HashMap<>();
-        trialUpdate.put("end", System.currentTimeMillis());
-        mTrialsRef.updateChildren(trialUpdate);
+        mTrialRef.update("end", System.currentTimeMillis());
     }
 }

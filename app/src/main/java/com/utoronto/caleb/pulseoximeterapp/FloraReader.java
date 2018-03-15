@@ -6,6 +6,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class FloraReader extends CustomDeviceReader {
 
@@ -17,18 +20,20 @@ public class FloraReader extends CustomDeviceReader {
 
     @Override
     public void saveData(byte[] bytes) {
+        Map<String, Object> data = new HashMap<>();
         String jsonString = new String(bytes);
         if (jsonString.trim().isEmpty()){
             return;
         }
         try {
             JSONObject json = new JSONObject(jsonString);
-            int red = json.getInt("red");
-            int ir = json.getInt("ir");
-            int hr = json.getInt("HR");
-            boolean hrValid = (1 == json.getInt("HRValid"));
-            int oxygen = json.getInt("SPO2");
-            boolean oxygenValid = (1 == json.getInt("SPO2Valid"));
+            data.put(DataKeys.RED, json.getInt("red"));
+            data.put(DataKeys.IR, json.getInt("ir"));
+            data.put(DataKeys.HR, json.getInt("HR"));
+            data.put(DataKeys.HR_VALID, (1 == json.getInt("HRValid")));
+            data.put(DataKeys.OXYGEN, json.getInt("SPO2"));
+            data.put(DataKeys.OXYGEN_VALID, (1 == json.getInt("SPO2Valid")));
+            mHandler.handleIncomingData(Device.MAX30102, data);
         } catch (JSONException e) {
             e.printStackTrace();
             stopMonitor();

@@ -14,6 +14,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class MonitorService extends Service implements UsbDataHandler {
@@ -127,11 +128,12 @@ public class MonitorService extends Service implements UsbDataHandler {
     }
 
     @Override
-    public void handleIncomingData(int hr, int spo2, int bp, long timestamp, Device device) {
+    public void handleIncomingData(Device device, Map<String, Object> data) {
         if (mDataVisualizer != null) {
-            mDataVisualizer.updateUI(device.getDescription(), timestamp, spo2);
+            int oxygen = (int) data.get(DataKeys.OXYGEN);
+            mDataVisualizer.updateUI(device.getDescription(), oxygen);
         }
-        mDBHelper.saveData(hr, spo2, bp, timestamp, device);
+        mDBHelper.saveData(device, data);
     }
 
     @Override
