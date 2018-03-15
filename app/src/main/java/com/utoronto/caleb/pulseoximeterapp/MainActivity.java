@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,6 +62,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         setupUsbPermissionHandler();
+        FirebaseApp.initializeApp(this);
+        runTests();
+    }
+
+    private void runTests() {
+        DBHelper db = new DBHelper();
+        db.testSave();
     }
 
     private void setupUsbPermissionHandler() {
