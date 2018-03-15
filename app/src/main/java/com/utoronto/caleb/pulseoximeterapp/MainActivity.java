@@ -131,7 +131,10 @@ public class MainActivity extends Activity {
             UsbDevice device = (UsbDevice) it.next();
             String name = device.getProductName();
             if (Device.FINGERTIP.nameEquals(name)) {
-                Log.d(TAG, "Fingertip Sensor detected");
+                Log.d(TAG, "Fingertip sensor detected");
+                devices.add(device);
+            } else if (Device.MAX30102.nameEquals(name)) {
+                Log.d(TAG, "MAX30102 sensor detected");
                 devices.add(device);
             }
             it.remove();

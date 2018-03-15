@@ -30,6 +30,8 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     private FingerTipReader mFingerTipReader = null;
 
+    private FloraReader mFloraReader = null;
+
     private DataVisualizer mDataVisualizer = null;
 
     private DBHelper mDBHelper = new DBHelper();
@@ -108,6 +110,11 @@ public class MonitorService extends Service implements UsbDataHandler {
                 if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
                     mFingerTipReader = new FingerTipReader(deviceName, this, this);
                     mFingerTipReader.start();
+                }
+            } else if (Device.MAX30102.nameEquals(name)) {
+                if (mFloraReader == null || !mFloraReader.isAlive()) {
+                    mFloraReader = new FloraReader(deviceName, this, this);
+                    mFloraReader.start();
                 }
             }
         }

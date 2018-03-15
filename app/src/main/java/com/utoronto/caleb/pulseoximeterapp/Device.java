@@ -5,7 +5,8 @@ package com.utoronto.caleb.pulseoximeterapp;
  */
 
 public enum Device {
-    FINGERTIP ("USBUART", "FingertipReader");
+    FINGERTIP ("USBUART", "FingertipReader"),
+    MAX30102 ("Flora", "MAX30102");
 
     private final String name;
     private final String description;
