@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
+import com.utoronto.caleb.pulseoximeterapp.devices.Device;
 
 import java.util.ArrayList;
 import java.util.HashMap;

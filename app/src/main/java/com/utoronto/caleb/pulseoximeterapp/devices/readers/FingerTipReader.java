@@ -1,11 +1,15 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.devices.readers;
 
 import android.content.Context;
+
+import com.utoronto.caleb.pulseoximeterapp.devices.Device;
+import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class FingerTipReader extends CustomDeviceReader {
+public class FingerTipReader extends AbstractDeviceReader {
 
     private String TAG = "FINGERTIP_READER";
 

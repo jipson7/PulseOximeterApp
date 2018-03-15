@@ -1,4 +1,4 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.storage;
 
 public class Trial {
     public String name;

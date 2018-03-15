@@ -1,4 +1,4 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.devices.readers;
 
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
@@ -7,10 +7,11 @@ import android.hardware.usb.UsbManager;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
+import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
 
 import java.util.HashMap;
 
-public abstract class CustomDeviceReader extends Thread {
+public abstract class AbstractDeviceReader extends Thread {
 
     private UsbSerialDevice mSerial;
 
@@ -20,7 +21,7 @@ public abstract class CustomDeviceReader extends Thread {
 
     public abstract void saveData(byte[] bytes);
 
-    public CustomDeviceReader(String deviceName, Context context, UsbDataHandler handler) {
+    public AbstractDeviceReader(String deviceName, Context context, UsbDataHandler handler) {
         this.mHandler = handler;
         this.mSerial = getDeviceSerial(deviceName, context);
     }

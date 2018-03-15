@@ -1,7 +1,10 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.devices.readers;
 
 import android.content.Context;
-import android.util.Log;
+
+import com.utoronto.caleb.pulseoximeterapp.devices.Device;
+import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FloraReader extends CustomDeviceReader {
+public class FloraReader extends AbstractDeviceReader {
 
     private String TAG = "FLORA_READER";
 

@@ -1,8 +1,9 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.storage;
 
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.utoronto.caleb.pulseoximeterapp.devices.Device;
 
 import java.util.Map;
 

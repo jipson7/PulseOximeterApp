@@ -5,12 +5,19 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.utoronto.caleb.pulseoximeterapp.devices.Device;
+import com.utoronto.caleb.pulseoximeterapp.devices.readers.FingerTipReader;
+import com.utoronto.caleb.pulseoximeterapp.devices.readers.FloraReader;
+import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.storage.DBHelper;
+import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
+import com.utoronto.caleb.pulseoximeterapp.visualization.DataVisualizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

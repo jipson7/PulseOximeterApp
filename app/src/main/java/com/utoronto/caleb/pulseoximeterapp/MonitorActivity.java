@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
+import com.utoronto.caleb.pulseoximeterapp.visualization.DataVisualizer;
+
 import java.util.ArrayList;
 
 public class MonitorActivity extends Activity implements DataVisualizer {

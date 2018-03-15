@@ -1,4 +1,4 @@
-package com.utoronto.caleb.pulseoximeterapp;
+package com.utoronto.caleb.pulseoximeterapp.storage;
 
 /**
  * Created by caleb on 2018-03-15.
