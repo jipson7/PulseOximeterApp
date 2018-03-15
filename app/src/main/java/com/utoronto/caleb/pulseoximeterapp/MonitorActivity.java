@@ -93,8 +93,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     public void closeWindow(View v) {
         finish();
     }
-
-
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -103,9 +102,8 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         mBound = false;
     }
 
-
     @Override
-    public void updateUI(String device, long timestamp, int spo2) {
-        Log.d(TAG,spo2 + " " + timestamp + " " + device);
+    public void updateUI(String device, int spo2) {
+        Log.d(TAG,spo2 + " " + device);
     }
 }

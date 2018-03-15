@@ -1,8 +1,6 @@
 package com.utoronto.caleb.pulseoximeterapp.devices;
 
 
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
-
 import java.util.Map;
 
 public interface UsbDataHandler {

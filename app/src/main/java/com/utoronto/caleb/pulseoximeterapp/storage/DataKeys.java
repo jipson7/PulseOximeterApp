@@ -1,9 +1,5 @@
 package com.utoronto.caleb.pulseoximeterapp.storage;
 
-/**
- * Created by caleb on 2018-03-15.
- */
-
 public class DataKeys {
     final public static String RED = "red_led";
     final public static String IR = "ir_led";
