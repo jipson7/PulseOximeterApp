@@ -11,8 +11,6 @@ public class Trial {
     public String name;
     public String description;
     public long start;
-    @Exclude
-    public long end;
 
     public Trial(){}
 
@@ -20,10 +18,5 @@ public class Trial {
         this.name = name;
         this.description = description;
         this.start = System.currentTimeMillis();
-    }
-
-    @Exclude
-    public void end() {
-        this.end = System.currentTimeMillis();
     }
 }
