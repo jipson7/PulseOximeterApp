@@ -2,6 +2,7 @@ package com.utoronto.caleb.pulseoximeterapp.devices;
 
 
 public enum Device {
+    //TODO convert to class to save info about device
     FINGERTIP ("USBUART", "FingertipReader"),
     MAX30102 ("Flora", "MAX30102");
 

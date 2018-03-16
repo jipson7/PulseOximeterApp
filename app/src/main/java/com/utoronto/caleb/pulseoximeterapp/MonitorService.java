@@ -30,18 +30,14 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     public static final int MONITOR_NOTIFICATION_ID = 1234;
 
-    private ArrayList<String> mDeviceNames = null;
-
-    private UsbManager mUsbManager = null;
-
     private boolean isMonitoring = false;
 
+    private ArrayList<String> mDeviceNames = null;
+    private UsbManager mUsbManager = null;
     private FingerTipReader mFingerTipReader = null;
-
     private FloraReader mFloraReader = null;
 
     private DataVisualizer mDataVisualizer = null;
-
     private DBHelper mDBHelper = new DBHelper();
 
     @Override
@@ -137,8 +133,10 @@ public class MonitorService extends Service implements UsbDataHandler {
     @Override
     public void handleIncomingData(Device device, Map<String, Object> data) {
         if (mDataVisualizer != null) {
-            int oxygen = (int) data.get(DataKeys.OXYGEN);
-            mDataVisualizer.updateUI(device.getDescription(), oxygen);
+            Object oxygen = data.get(DataKeys.OXYGEN);
+            if (oxygen != null) {
+                mDataVisualizer.updateUI(device.getDescription(), (int) oxygen);
+            }
         }
         mDBHelper.saveData(device, data);
     }

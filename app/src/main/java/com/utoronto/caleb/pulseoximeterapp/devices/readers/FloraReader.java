@@ -29,14 +29,24 @@ public class FloraReader extends AbstractDeviceReader {
             return;
         }
         try {
+
             JSONObject json = new JSONObject(jsonString);
-            data.put(DataKeys.RED, json.getInt("red"));
-            data.put(DataKeys.IR, json.getInt("ir"));
-            data.put(DataKeys.HR, json.getInt("HR"));
-            data.put(DataKeys.HR_VALID, (1 == json.getInt("HRValid")));
-            data.put(DataKeys.OXYGEN, json.getInt("SPO2"));
-            data.put(DataKeys.OXYGEN_VALID, (1 == json.getInt("SPO2Valid")));
-            mHandler.handleIncomingData(Device.MAX30102, data);
+
+            boolean hrValid = (1 == json.getInt("HRValid"));
+            if (hrValid)
+                data.put(DataKeys.HR, json.getInt("HR"));
+
+            boolean oxygenValid = (1 == json.getInt("SPO2Valid"));
+            if (oxygenValid)
+                data.put(DataKeys.OXYGEN, json.getInt("SPO2"));
+
+            if (oxygenValid || hrValid) {
+                // Add lights if at least one sensor is getting valid results
+                data.put(DataKeys.RED, json.getInt("red"));
+                data.put(DataKeys.IR, json.getInt("ir"));
+                mHandler.handleIncomingData(Device.MAX30102, data);
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
             stopMonitor();
