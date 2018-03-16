@@ -1,8 +1,5 @@
 package com.utoronto.caleb.pulseoximeterapp.devices;
 
-/**
- * Created by caleb on 2018-03-12.
- */
 
 public enum Device {
     FINGERTIP ("USBUART", "FingertipReader"),

@@ -93,7 +93,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     public void closeWindow(View v) {
         finish();
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
