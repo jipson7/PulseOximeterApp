@@ -39,7 +39,6 @@ public class DBHelper {
     }
 
     public void saveData(Device device, Map<String, Object> data) {
-        Log.d(TAG, Arrays.toString(data.entrySet().toArray()));
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         CollectionReference dataRef = mDataRefs.get(device);
