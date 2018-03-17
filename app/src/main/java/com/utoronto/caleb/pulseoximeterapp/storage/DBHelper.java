@@ -1,15 +1,12 @@
 package com.utoronto.caleb.pulseoximeterapp.storage;
 
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.utoronto.caleb.pulseoximeterapp.devices.Device;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DBHelper {
@@ -24,28 +21,33 @@ public class DBHelper {
 
     DocumentReference mTrialRef;
 
+    Map<Device, CollectionReference> mDataRefs;
+
     public DBHelper() {
+        mDataRefs = new HashMap<>();
         setupTrial();
     }
 
     private void setupTrial() {
         db = FirebaseFirestore.getInstance();
-        //TODO replace defaults
-        String name = "defaultTrial";
-        String description = "defaultDesc";
-        mTrial = new Trial(name, description);
+        mTrial = new Trial();
         mTrialRef = db.collection(collectionName).document();
         mTrialRef.set(mTrial);
     }
 
     public void saveData(Device device, Map<String, Object> data) {
-        //TODO cache dataRef for each device
         String timestamp = String.valueOf(System.currentTimeMillis());
-        mTrialRef.collection("devices")
-                .document(device.getDescription())
-                .collection("data")
-                .document(String.valueOf(timestamp))
-                .set(data);
+
+        CollectionReference dataRef = mDataRefs.get(device);
+
+        if (dataRef == null) {
+            DocumentReference deviceRef = mTrialRef.collection("devices").document();
+            deviceRef.set(device);
+            dataRef = deviceRef.collection("data");
+            mDataRefs.put(device, dataRef);
+        }
+
+        dataRef.document(timestamp).set(data);
     }
 
     public void endSession() {
