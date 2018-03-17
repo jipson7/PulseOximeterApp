@@ -1,15 +1,14 @@
 package com.utoronto.caleb.pulseoximeterapp.storage;
 
+import java.util.Date;
+
 public class Trial {
-    public String name;
-    public String description;
     public long start;
+    public String date;
 
-    public Trial(){}
-
-    public Trial(String name, String description) {
-        this.name = name;
-        this.description = description;
-        this.start = System.currentTimeMillis();
+    public Trial(){
+        start = System.currentTimeMillis();
+        date = (new Date(start)).toString();
     }
+
 }
