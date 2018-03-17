@@ -6,9 +6,8 @@ public class Trial {
     public long start;
     public String date;
 
-    public Trial(){
+    public Trial() {
         start = System.currentTimeMillis();
         date = (new Date(start)).toString();
     }
-
 }

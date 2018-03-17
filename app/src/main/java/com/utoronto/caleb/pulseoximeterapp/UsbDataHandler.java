@@ -1,4 +1,4 @@
-package com.utoronto.caleb.pulseoximeterapp.devices;
+package com.utoronto.caleb.pulseoximeterapp;
 
 
 import java.util.Map;

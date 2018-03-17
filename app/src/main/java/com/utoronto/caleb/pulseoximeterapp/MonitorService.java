@@ -11,10 +11,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
-import com.utoronto.caleb.pulseoximeterapp.devices.readers.FingerTipReader;
-import com.utoronto.caleb.pulseoximeterapp.devices.readers.FloraReader;
-import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.readers.FingerTipReader;
+import com.utoronto.caleb.pulseoximeterapp.readers.FloraReader;
 import com.utoronto.caleb.pulseoximeterapp.storage.DBHelper;
 import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 import com.utoronto.caleb.pulseoximeterapp.visualization.DataVisualizer;
@@ -110,12 +108,12 @@ public class MonitorService extends Service implements UsbDataHandler {
         for (String deviceName: mDeviceNames) {
             UsbDevice device = deviceList.get(deviceName);
             String name = device.getProductName();
-            if (Device.FINGERTIP.nameEquals(name)) {
+            if (Device.FINGERTIP.is(name)) {
                 if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
                     mFingerTipReader = new FingerTipReader(deviceName, this, this);
                     mFingerTipReader.start();
                 }
-            } else if (Device.MAX30102.nameEquals(name)) {
+            } else if (Device.MAX30102.is(name)) {
                 if (mFloraReader == null || !mFloraReader.isAlive()) {
                     mFloraReader = new FloraReader(deviceName, this, this);
                     mFloraReader.start();
@@ -135,7 +133,7 @@ public class MonitorService extends Service implements UsbDataHandler {
         if (mDataVisualizer != null) {
             Object oxygen = data.get(DataKeys.OXYGEN);
             if (oxygen != null) {
-                mDataVisualizer.updateUI(device.getDescription(), (int) oxygen);
+                mDataVisualizer.updateUI(device.toString(), (int) oxygen);
             }
         }
         mDBHelper.saveData(device, data);

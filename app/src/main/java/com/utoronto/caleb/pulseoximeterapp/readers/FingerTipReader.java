@@ -1,9 +1,10 @@
-package com.utoronto.caleb.pulseoximeterapp.devices.readers;
+package com.utoronto.caleb.pulseoximeterapp.readers;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
-import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.Device;
+import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class FingerTipReader extends AbstractDeviceReader {
 
     private String TAG = "FINGERTIP_READER";
 
-    public static final boolean RECORD_BP = false;
+    final boolean RECORD_BP = false;
 
     public FingerTipReader(String deviceName, Context context, UsbDataHandler handler) {
         super(deviceName, context, handler);
@@ -25,6 +26,7 @@ public class FingerTipReader extends AbstractDeviceReader {
         String dataRead = bytesToHex(bytes);
 
         int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+        Log.e("VAL", "--- " + hr);
         boolean hrValid = (127 != hr);
         if (hrValid)
             dataMap.put(DataKeys.HR, hr);
@@ -35,8 +37,8 @@ public class FingerTipReader extends AbstractDeviceReader {
             dataMap.put(DataKeys.OXYGEN, oxygen);
 
         int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
-        boolean bpValid = (111 != bp);
-        if(bpValid && RECORD_BP)
+        boolean bpValid = (111 != bp) && RECORD_BP;
+        if(bpValid)
             dataMap.put(DataKeys.BP, bp);
 
         if (hrValid || oxygenValid || bpValid)

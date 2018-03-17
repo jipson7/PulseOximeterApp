@@ -1,9 +1,9 @@
-package com.utoronto.caleb.pulseoximeterapp.devices.readers;
+package com.utoronto.caleb.pulseoximeterapp.readers;
 
 import android.content.Context;
 
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
-import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.Device;
+import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 
 import org.json.JSONException;

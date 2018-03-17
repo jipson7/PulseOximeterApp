@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,10 +130,10 @@ public class MainActivity extends Activity {
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
             String name = device.getProductName();
-            if (Device.FINGERTIP.nameEquals(name)) {
+            if (Device.FINGERTIP.is(name)) {
                 Log.d(TAG, "Fingertip sensor detected");
                 devices.add(device);
-            } else if (Device.MAX30102.nameEquals(name)) {
+            } else if (Device.MAX30102.is(name)) {
                 Log.d(TAG, "MAX30102 sensor detected");
                 devices.add(device);
             }

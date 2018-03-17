@@ -1,11 +1,14 @@
 package com.utoronto.caleb.pulseoximeterapp.storage;
 
 
+import android.util.Log;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.utoronto.caleb.pulseoximeterapp.devices.Device;
+import com.utoronto.caleb.pulseoximeterapp.Device;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,13 +39,14 @@ public class DBHelper {
     }
 
     public void saveData(Device device, Map<String, Object> data) {
+        Log.d(TAG, Arrays.toString(data.entrySet().toArray()));
         String timestamp = String.valueOf(System.currentTimeMillis());
 
         CollectionReference dataRef = mDataRefs.get(device);
 
         if (dataRef == null) {
             DocumentReference deviceRef = mTrialRef.collection("devices").document();
-            deviceRef.set(device);
+            deviceRef.set(device.toMap());
             dataRef = deviceRef.collection("data");
             mDataRefs.put(device, dataRef);
         }

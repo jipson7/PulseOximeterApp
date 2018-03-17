@@ -1,4 +1,4 @@
-package com.utoronto.caleb.pulseoximeterapp.devices.readers;
+package com.utoronto.caleb.pulseoximeterapp.readers;
 
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
@@ -7,7 +7,7 @@ import android.hardware.usb.UsbManager;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
-import com.utoronto.caleb.pulseoximeterapp.devices.UsbDataHandler;
+import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 
 import java.util.HashMap;
 
