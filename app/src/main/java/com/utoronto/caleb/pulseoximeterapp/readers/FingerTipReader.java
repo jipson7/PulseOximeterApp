@@ -26,7 +26,6 @@ public class FingerTipReader extends AbstractDeviceReader {
         String dataRead = bytesToHex(bytes);
 
         int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
-        Log.e("VAL", "--- " + hr);
         boolean hrValid = (127 != hr);
         if (hrValid)
             dataMap.put(DataKeys.HR, hr);
