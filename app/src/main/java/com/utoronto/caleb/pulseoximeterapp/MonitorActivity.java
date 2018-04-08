@@ -27,7 +27,6 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     Intent mMonitorServiceIntent = null;
     private MonitorService mMonitorService;
     private boolean mBound = false;
-    ArrayList<String> mUsbDeviceNames;
     private BluetoothDevice mBluetoothDevice;
     private UsbDevice mFingertipDevice;
     private UsbDevice mFloraDevice;
@@ -69,29 +68,20 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
-            if (mBluetoothDevice != null) {
-                Log.d(TAG, "Device Received: " + Device.BLUETOOTH_SENSOR);
-            }
             mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
-            if (mFingertipDevice != null) {
-                Log.d(TAG, "Device Received: " + Device.FINGERTIP);
-            }
             mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
-            if (mFloraDevice != null) {
-                Log.d(TAG, "Device Received: " + Device.MAX30102);
-            }
         }
-        //TODO remove
-//        startMonitorService();
-//        bindMonitorService();
+        startMonitorService();
+        bindMonitorService();
     }
 
     private void startMonitorService() {
-        Log.d(TAG, "Starting Monitor service with " + mUsbDeviceNames.size() + " devices.");
+        Log.d(TAG, "Starting Monitor service.");
         mMonitorServiceIntent = new Intent(this, MonitorService.class);
         mMonitorServiceIntent.setAction(ACTION_MONITOR);
-        //TODO remove
-        //mMonitorServiceIntent.putStringArrayListExtra(MainActivity.USB_DEVICE_PARAM, mUsbDeviceNames);
+        mMonitorServiceIntent.putExtra(MainActivity.FINGERTIP_DEVICE_PARAM, mFingertipDevice);
+        mMonitorServiceIntent.putExtra(MainActivity.FLORA_DEVICE_PARAM, mFloraDevice);
+        mMonitorServiceIntent.putExtra(MainActivity.BLUETOOTH_DEVICE_PARAM, mBluetoothDevice);
         startService(mMonitorServiceIntent);
     }
 

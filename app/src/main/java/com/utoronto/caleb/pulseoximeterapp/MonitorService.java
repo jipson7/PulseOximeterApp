@@ -3,14 +3,17 @@ package com.utoronto.caleb.pulseoximeterapp;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.utoronto.caleb.pulseoximeterapp.readers.BLEDeviceReader;
 import com.utoronto.caleb.pulseoximeterapp.readers.FingerTipReader;
 import com.utoronto.caleb.pulseoximeterapp.readers.FloraReader;
 import com.utoronto.caleb.pulseoximeterapp.storage.DBHelper;
@@ -30,10 +33,15 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     private boolean isMonitoring = false;
 
-    private ArrayList<String> mDeviceNames = null;
     private UsbManager mUsbManager = null;
+
+    private UsbDevice mFingertipDevice;
+    private UsbDevice mFloraDevice;
+    private BluetoothDevice mBluetoothDevice;
+
     private FingerTipReader mFingerTipReader = null;
     private FloraReader mFloraReader = null;
+    private BLEDeviceReader mBLEDeviceReader = null;
 
     private DataVisualizer mDataVisualizer = null;
     private DBHelper mDBHelper = new DBHelper();
@@ -78,8 +86,21 @@ public class MonitorService extends Service implements UsbDataHandler {
             if (intent != null) {
                 final String action = intent.getAction();
                 if (action.equals(MonitorActivity.ACTION_MONITOR)) {
-                    //TODO
-                    //mDeviceNames = intent.getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
+                    Bundle extras = intent.getExtras();
+                    if (extras != null) {
+                        mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
+                        if (mBluetoothDevice != null) {
+                            Log.d(TAG, "Device Received: " + Device.BLUETOOTH_SENSOR);
+                        }
+                        mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
+                        if (mFingertipDevice != null) {
+                            Log.d(TAG, "Device Received: " + Device.FINGERTIP);
+                        }
+                        mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
+                        if (mFloraDevice != null) {
+                            Log.d(TAG, "Device Received: " + Device.MAX30102);
+                        }
+                    }
                     monitor();
                 }
             }
@@ -105,22 +126,21 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
-        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
-        for (String deviceName: mDeviceNames) {
-            UsbDevice device = deviceList.get(deviceName);
-            String name = device.getProductName();
-            if (Device.FINGERTIP.is(name)) {
-                if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
-                    mFingerTipReader = new FingerTipReader(deviceName, this, this);
-                    mFingerTipReader.start();
-                }
-            } else if (Device.MAX30102.is(name)) {
-                if (mFloraReader == null || !mFloraReader.isAlive()) {
-                    mFloraReader = new FloraReader(deviceName, this, this);
-                    mFloraReader.start();
-                }
-            }
+
+        if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
+            mFingerTipReader = new FingerTipReader(mFingertipDevice.getDeviceName(), this, this);
+            mFingerTipReader.start();
         }
+
+        if (mFloraReader == null || !mFloraReader.isAlive()) {
+            mFloraReader = new FloraReader(mFloraDevice.getDeviceName(), this, this);
+            mFloraReader.start();
+        }
+
+        if (mBLEDeviceReader == null || !mBLEDeviceReader.isAlive()) {
+            //TODO start BLE reading
+        }
+
     }
 
     @Override
@@ -145,6 +165,12 @@ public class MonitorService extends Service implements UsbDataHandler {
         Log.d(TAG, "Ending USB Monitoring Threads.");
         if (mFingerTipReader != null) {
             mFingerTipReader.stopMonitor();
+        }
+        if (mFloraReader != null) {
+            mFloraReader.stopMonitor();
+        }
+        if (mBLEDeviceReader != null) {
+            mBLEDeviceReader.stopMonitor();
         }
         endMonitoring();
     }

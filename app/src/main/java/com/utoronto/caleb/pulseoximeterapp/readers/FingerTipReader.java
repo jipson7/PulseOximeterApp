@@ -25,17 +25,24 @@ public class FingerTipReader extends AbstractDeviceReader {
         Map<String, Object> dataMap = new HashMap<>();
         String dataRead = bytesToHex(bytes);
 
-        int hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+        int hr, oxygen, bp;
+
+        try {
+            hr = Integer.parseInt(dataRead.charAt(6) + "" + dataRead.charAt(7), 16);
+            oxygen = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
+            bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
+        } catch (StringIndexOutOfBoundsException e) {
+            Log.e(TAG, "Malformed data received.");
+            return;
+        }
         boolean hrValid = (127 != hr);
         if (hrValid)
             dataMap.put(DataKeys.HR, hr);
 
-        int oxygen = Integer.parseInt(dataRead.charAt(8) + "" + dataRead.charAt(9), 16);
         boolean oxygenValid = (127 != oxygen);
         if (oxygenValid)
             dataMap.put(DataKeys.OXYGEN, oxygen);
 
-        int bp = Integer.parseInt(dataRead.charAt(4) + "" + dataRead.charAt(5), 16);
         boolean bpValid = (111 != bp) && RECORD_BP;
         if(bpValid)
             dataMap.put(DataKeys.BP, bp);

@@ -217,16 +217,13 @@ public class MainActivity extends Activity {
 
         Intent intent = new Intent(this, MonitorActivity.class);
 
-        if (mFingertipDevice != null) {
-            Log.d(TAG, "Device Found: " + Device.FINGERTIP.toString());
+        if (mFingertipSwitch.isChecked()) {
             intent.putExtra(FINGERTIP_DEVICE_PARAM, mFingertipDevice);
         }
-        if (mFloraDevice != null) {
-            Log.d(TAG, "Device Found: " + Device.MAX30102.toString());
+        if (mFloraSwitch.isChecked()) {
             intent.putExtra(FLORA_DEVICE_PARAM, mFloraDevice);
         }
-        if (mBluetoothDevice != null) {
-            Log.d(TAG, "Device Found: " + Device.BLUETOOTH_SENSOR.toString());
+        if (mBluetoothSwitch.isChecked()) {
             intent.putExtra(BLUETOOTH_DEVICE_PARAM, mBluetoothDevice);
         }
         startActivity(intent);
