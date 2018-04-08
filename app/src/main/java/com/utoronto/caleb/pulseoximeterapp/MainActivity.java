@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
@@ -26,9 +27,11 @@ public class MainActivity extends Activity {
 
     UsbManager mUsbManager;
 
-    public static final String DEVICE_PARAM = "com.utoronto.caleb.pulseoximeterapp.param.DEVICE_PARAMETER";
+    public static final String USB_DEVICE_PARAM = "com.utoronto.caleb.pulseoximeterapp.param.USB_DEVICE_PARAMETER";
 
-    ArrayList<String> mDeviceNames;
+    private Switch mFingertipSwitch;
+    private Switch mFloraSwitch;
+    private Switch mBluetoothSwitch;
 
     private PendingIntent mPermissionIntent;
 
@@ -63,6 +66,13 @@ public class MainActivity extends Activity {
         this.mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         setupUsbPermissionHandler();
         FirebaseApp.initializeApp(this);
+        setupDeviceSwitches();
+    }
+
+    private void setupDeviceSwitches() {
+        mFingertipSwitch = findViewById(R.id.switch_fingertip);
+        mFloraSwitch = findViewById(R.id.switch_flora);
+        mBluetoothSwitch = findViewById(R.id.switch_bluetooth);
     }
 
     private void setupUsbPermissionHandler() {
@@ -71,7 +81,7 @@ public class MainActivity extends Activity {
         registerReceiver(mUsbReceiver, filter);
     }
 
-    public void onClickDevicesBtn(View v) {
+    public void onClickLogUsbDevices(View v) {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, deviceList.size() + " devices found.");
         Iterator it = deviceList.values().iterator();
@@ -96,50 +106,50 @@ public class MainActivity extends Activity {
     }
 
     private void startMonitorActivity() {
-        if (checkDevicePermissions()) {
-            Intent intent = new Intent(this, MonitorActivity.class);
-            intent.putStringArrayListExtra(DEVICE_PARAM, mDeviceNames);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, R.string.no_devices, Toast.LENGTH_SHORT).show();
-            Log.e(TAG,"Missing permission for supported device.");
-        }
-    }
 
-    private boolean checkDevicePermissions() {
-        ArrayList<UsbDevice> devices = getAvailableDevices();
-        mDeviceNames = new ArrayList<>();
-        for (UsbDevice device: devices) {
-            if (!this.mUsbManager.hasPermission(device)) {
-                this.mUsbManager.requestPermission(device, this.mPermissionIntent);
-                Log.d(TAG, "Device " + device.getProductName() +  " is missing permissions. Requesting.");
-                return false;
-            } else {
-                mDeviceNames.add(device.getDeviceName());
+        ArrayList<String> usbDeviceNames = new ArrayList<>();
+
+        if (mFingertipSwitch.isChecked()) {
+            String name = getDeviceName(Device.FINGERTIP);
+            if (name == null) {
+                Log.e(TAG, "Unable to locate: " + Device.FINGERTIP.toString());
+                return;
             }
+            usbDeviceNames.add(name);
+        }
+        if (mFloraSwitch.isChecked()) {
+            Log.e(TAG, "Unable to locate: " + Device.MAX30102.toString());
+            String name = getDeviceName(Device.MAX30102);
+            if (name == null) {
+                return;
+            }
+            usbDeviceNames.add(name);
+        }
+        if (mBluetoothSwitch.isChecked()) {
+            //TODO pass the device somehow
         }
 
-        return (mDeviceNames.size() > 0);
+        Intent intent = new Intent(this, MonitorActivity.class);
+        intent.putStringArrayListExtra(USB_DEVICE_PARAM, usbDeviceNames);
+        startActivity(intent);
     }
 
-    private ArrayList<UsbDevice> getAvailableDevices() {
-        ArrayList<UsbDevice> devices = new ArrayList<>();
+    private String getDeviceName(Device d) {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Iterator it = deviceList.values().iterator();
-        Log.d(TAG, deviceList.size() + " devices detected.");
         while (it.hasNext()) {
             UsbDevice device = (UsbDevice) it.next();
             String name = device.getProductName();
-            if (Device.FINGERTIP.is(name)) {
-                Log.d(TAG, "Fingertip sensor detected");
-                devices.add(device);
-            } else if (Device.MAX30102.is(name)) {
-                Log.d(TAG, "MAX30102 sensor detected");
-                devices.add(device);
+            if (d.is(name)) {
+                if (!this.mUsbManager.hasPermission(device)) {
+                    this.mUsbManager.requestPermission(device, this.mPermissionIntent);
+                    return null;
+                }
+                return device.getDeviceName();
             }
             it.remove();
         }
-        return devices;
+        return null;
     }
 
     @Override

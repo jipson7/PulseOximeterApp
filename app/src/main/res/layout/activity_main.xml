@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:onClick="onClickDevicesBtn"
+            android:onClick="onClickLogUsbDevices"
             android:text="@string/device_btn_lbl" />
 
         <Button
@@ -28,6 +28,27 @@
             android:layout_centerVertical="true"
             android:onClick="onClickMonitorBtn"
             android:text="@string/monitor_btn_lbl" />
+
+        <Switch
+            android:id="@+id/switch_fingertip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/device_name_fingertip" />
+
+        <Switch
+            android:id="@+id/switch_flora"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/device_name_flora" />
+
+        <Switch
+            android:id="@+id/switch_bluetooth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/device_name_bluetooth" />
 
     </LinearLayout>
 

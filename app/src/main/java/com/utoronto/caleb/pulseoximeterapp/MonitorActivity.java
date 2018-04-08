@@ -25,7 +25,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     Intent mMonitorServiceIntent = null;
     private MonitorService mMonitorService;
     private boolean mBound = false;
-    ArrayList<String> mDeviceNames;
+    ArrayList<String> mUsbDeviceNames;
 
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -61,16 +61,20 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         registerReceiver(mReceiver, new IntentFilter(ACTION_STOP_MONITOR));
-        mDeviceNames = getIntent().getStringArrayListExtra(MainActivity.DEVICE_PARAM);
+        mUsbDeviceNames = getIntent().getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
+        Log.d(TAG, "Devices sent to monitor activity: ");
+        for (String deviceName: mUsbDeviceNames) {
+            Log.d(TAG, deviceName);
+        }
         startMonitorService();
         bindMonitorService();
     }
 
     private void startMonitorService() {
-        Log.d(TAG, "Starting Monitor service with " + mDeviceNames.size() + " devices.");
+        Log.d(TAG, "Starting Monitor service with " + mUsbDeviceNames.size() + " devices.");
         mMonitorServiceIntent = new Intent(this, MonitorService.class);
         mMonitorServiceIntent.setAction(ACTION_MONITOR);
-        mMonitorServiceIntent.putStringArrayListExtra(MainActivity.DEVICE_PARAM, mDeviceNames);
+        mMonitorServiceIntent.putStringArrayListExtra(MainActivity.USB_DEVICE_PARAM, mUsbDeviceNames);
         startService(mMonitorServiceIntent);
     }
 

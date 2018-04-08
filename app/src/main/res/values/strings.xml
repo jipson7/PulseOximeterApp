@@ -3,7 +3,7 @@
     <string name="app_name">PulseOximeterApp</string>
 
     <!-- Main Activity -->
-    <string name="device_btn_lbl">Log Devices</string>
+    <string name="device_btn_lbl">Log USB Devices</string>
     <string name="monitor_btn_lbl">Monitor Devices</string>
 
     <!-- Monitor Activity -->
@@ -14,8 +14,13 @@
     <string name="no_devices">No supported devices attached.</string>
     <string name="device_granted">Device Permission Granted.</string>
 
+    <!-- Device IDS -->
+    <string name="product_id_fingertip">USBUART</string>
+
     <!-- Device Names -->
-    <string name="product_name_fingertip">USBUART</string>
+    <string name="device_name_fingertip">Fingertip Reader</string>
+    <string name="device_name_flora">Flora (MAX30102)</string>
+    <string name="device_name_bluetooth">Bluetooth (MAX86140)</string>
 
     <!-- Notification Information -->
     <string name="notification_title">Monitor Status</string>
