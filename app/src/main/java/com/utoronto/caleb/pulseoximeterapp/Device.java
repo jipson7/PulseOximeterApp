@@ -5,7 +5,8 @@ import java.util.Map;
 
 public enum Device {
     FINGERTIP ("USBUART", "FingerTipDevice"),
-    MAX30102 ("Flora", "MAX30102");
+    MAX30102 ("Flora", "MAX30102"),
+    BLUETOOTH_SENSOR("OS58 Demo", "MAX86140");
 
     private final String name;
     private final String description;

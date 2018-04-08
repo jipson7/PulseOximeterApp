@@ -1,6 +1,7 @@
 package com.utoronto.caleb.pulseoximeterapp;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,6 +27,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     private MonitorService mMonitorService;
     private boolean mBound = false;
     ArrayList<String> mUsbDeviceNames;
+    private BluetoothDevice mBluetoothDevice;
 
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -61,10 +63,14 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         registerReceiver(mReceiver, new IntentFilter(ACTION_STOP_MONITOR));
-        mUsbDeviceNames = getIntent().getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
-        Log.d(TAG, "Devices sent to monitor activity: ");
-        for (String deviceName: mUsbDeviceNames) {
-            Log.d(TAG, deviceName);
+        Intent i = getIntent();
+        mUsbDeviceNames = i.getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
+        Bundle extras = i.getExtras();
+        if (extras != null) {
+            mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
+            if (mBluetoothDevice != null) {
+                Log.d(TAG, "BLUETOOTH DEVICE RECEIVED IN MONTOR ACTIVITY");
+            }
         }
         startMonitorService();
         bindMonitorService();
