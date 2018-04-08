@@ -78,7 +78,8 @@ public class MonitorService extends Service implements UsbDataHandler {
             if (intent != null) {
                 final String action = intent.getAction();
                 if (action.equals(MonitorActivity.ACTION_MONITOR)) {
-                    mDeviceNames = intent.getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
+                    //TODO
+                    //mDeviceNames = intent.getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
                     monitor();
                 }
             }

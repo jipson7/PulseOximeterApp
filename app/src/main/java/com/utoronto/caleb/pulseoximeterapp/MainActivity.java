@@ -36,14 +36,18 @@ public class MainActivity extends Activity {
 
     UsbManager mUsbManager;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothDevice mBluetoothDevice = null;
     private Handler mHandler;
     private static final int BLUETOOTH_SCAN_PERIOD = 60000; // 10 seconds
 
-    public static final String USB_DEVICE_PARAM =
-            "com.utoronto.caleb.pulseoximeterapp.param.USB_DEVICE_PARAMETER";
+    public static final String FINGERTIP_DEVICE_PARAM =
+            "com.utoronto.caleb.pulseoximeterapp.param.FINGERTIP_DEVICE_PARAMETER";
+    private UsbDevice mFingertipDevice = null;
+    public static final String FLORA_DEVICE_PARAM =
+            "com.utoronto.caleb.pulseoximeterapp.param.FINGERTIP_DEVICE_PARAMETER";
+    private UsbDevice mFloraDevice = null;
     public static final String BLUETOOTH_DEVICE_PARAM =
             "com.utoronto.caleb.pulseoximeterapp.param.BLUETOOTH_DEVICE_PARAMETER";
+    private BluetoothDevice mBluetoothDevice = null;
 
     private final int REQUEST_ENABLE_BT = 1111;
     private final int REQUEST_LOCATION = 2222;
@@ -67,7 +71,7 @@ public class MainActivity extends Activity {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
                             Toast.makeText(MainActivity.this, R.string.device_granted, Toast.LENGTH_LONG).show();
-                            startMonitorActivity();
+                            setupUsbDevices();
                         }
                     }
                     else {
@@ -83,12 +87,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupDeviceSwitches();
         mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
         mHandler = new Handler();
         setupUsbPermissionHandler();
+        setupUsbDevices();
         setupBluetooth();
         FirebaseApp.initializeApp(this);
-        setupDeviceSwitches();
     }
 
     @Override
@@ -137,6 +142,7 @@ public class MainActivity extends Activity {
                 // Found Device
                 Log.d(TAG, "Found Bluetooth Device");
                 startScanner(false);
+                mBluetoothSwitch.setChecked(true);
                 mBluetoothDevice = device;
             }
         }
@@ -171,6 +177,18 @@ public class MainActivity extends Activity {
         registerReceiver(mUsbReceiver, filter);
     }
 
+    private void setupUsbDevices() {
+        mFingertipDevice = getUsbDevice(Device.FINGERTIP);
+        if (mFingertipDevice != null) {
+            mFingertipSwitch.setChecked(true);
+        }
+        mFloraDevice = getUsbDevice(Device.MAX30102);
+        if (mFloraDevice != null) {
+            mFloraSwitch.setChecked(true);
+        }
+    }
+
+
     public void onClickLogUsbDevices(View v) {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, deviceList.size() + " devices found.");
@@ -198,36 +216,23 @@ public class MainActivity extends Activity {
     private void startMonitorActivity() {
 
         Intent intent = new Intent(this, MonitorActivity.class);
-        ArrayList<String> usbDeviceNames = new ArrayList<>();
 
-        if (mFingertipSwitch.isChecked()) {
-            String name = getDeviceName(Device.FINGERTIP);
-            if (name == null) {
-                Log.e(TAG, "Unable to locate: " + Device.FINGERTIP.toString());
-                return;
-            }
-            usbDeviceNames.add(name);
+        if (mFingertipDevice != null) {
+            Log.d(TAG, "Device Found: " + Device.FINGERTIP.toString());
+            intent.putExtra(FINGERTIP_DEVICE_PARAM, mFingertipDevice);
         }
-        if (mFloraSwitch.isChecked()) {
-            String name = getDeviceName(Device.MAX30102);
-            if (name == null) {
-                Log.e(TAG, "Unable to locate: " + Device.MAX30102.toString());
-                return;
-            }
-            usbDeviceNames.add(name);
+        if (mFloraDevice != null) {
+            Log.d(TAG, "Device Found: " + Device.MAX30102.toString());
+            intent.putExtra(FLORA_DEVICE_PARAM, mFloraDevice);
         }
-        if (mBluetoothSwitch.isChecked()) {
-            if (mBluetoothDevice == null) {
-                Log.e(TAG, "Unable to locate: " + Device.BLUETOOTH_SENSOR.toString());
-                return;
-            }
+        if (mBluetoothDevice != null) {
+            Log.d(TAG, "Device Found: " + Device.BLUETOOTH_SENSOR.toString());
             intent.putExtra(BLUETOOTH_DEVICE_PARAM, mBluetoothDevice);
         }
-        intent.putStringArrayListExtra(USB_DEVICE_PARAM, usbDeviceNames);
         startActivity(intent);
     }
 
-    private String getDeviceName(Device d) {
+    private UsbDevice getUsbDevice(Device d) {
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Iterator it = deviceList.values().iterator();
         while (it.hasNext()) {
@@ -238,7 +243,7 @@ public class MainActivity extends Activity {
                     this.mUsbManager.requestPermission(device, this.mPermissionIntent);
                     return null;
                 }
-                return device.getDeviceName();
+                return device;
             }
             it.remove();
         }

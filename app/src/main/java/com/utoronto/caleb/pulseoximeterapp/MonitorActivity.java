@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -28,6 +29,8 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     private boolean mBound = false;
     ArrayList<String> mUsbDeviceNames;
     private BluetoothDevice mBluetoothDevice;
+    private UsbDevice mFingertipDevice;
+    private UsbDevice mFloraDevice;
 
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -63,24 +66,32 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         registerReceiver(mReceiver, new IntentFilter(ACTION_STOP_MONITOR));
-        Intent i = getIntent();
-        mUsbDeviceNames = i.getStringArrayListExtra(MainActivity.USB_DEVICE_PARAM);
-        Bundle extras = i.getExtras();
+        Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
             if (mBluetoothDevice != null) {
-                Log.d(TAG, "BLUETOOTH DEVICE RECEIVED IN MONTOR ACTIVITY");
+                Log.d(TAG, "Device Received: " + Device.BLUETOOTH_SENSOR);
+            }
+            mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
+            if (mFingertipDevice != null) {
+                Log.d(TAG, "Device Received: " + Device.FINGERTIP);
+            }
+            mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
+            if (mFloraDevice != null) {
+                Log.d(TAG, "Device Received: " + Device.MAX30102);
             }
         }
-        startMonitorService();
-        bindMonitorService();
+        //TODO remove
+//        startMonitorService();
+//        bindMonitorService();
     }
 
     private void startMonitorService() {
         Log.d(TAG, "Starting Monitor service with " + mUsbDeviceNames.size() + " devices.");
         mMonitorServiceIntent = new Intent(this, MonitorService.class);
         mMonitorServiceIntent.setAction(ACTION_MONITOR);
-        mMonitorServiceIntent.putStringArrayListExtra(MainActivity.USB_DEVICE_PARAM, mUsbDeviceNames);
+        //TODO remove
+        //mMonitorServiceIntent.putStringArrayListExtra(MainActivity.USB_DEVICE_PARAM, mUsbDeviceNames);
         startService(mMonitorServiceIntent);
     }
 
