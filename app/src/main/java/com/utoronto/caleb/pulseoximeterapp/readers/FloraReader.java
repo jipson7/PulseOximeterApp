@@ -1,6 +1,8 @@
 package com.utoronto.caleb.pulseoximeterapp.readers;
 
 import android.content.Context;
+import android.hardware.usb.UsbDevice;
+import android.util.Log;
 
 import com.utoronto.caleb.pulseoximeterapp.Device;
 import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
@@ -13,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FloraReader extends AbstractDeviceReader {
+public class FloraReader extends AbstractUsbReader {
 
     private String TAG = "FLORA_READER";
 
-    public FloraReader(String deviceName, Context context, UsbDataHandler handler) {
-        super(deviceName, context, handler);
+    public FloraReader(UsbDevice device, Context context, UsbDataHandler handler) {
+        super(device, context, handler);
     }
 
     @Override
@@ -48,8 +50,7 @@ public class FloraReader extends AbstractDeviceReader {
             }
 
         } catch (JSONException e) {
-            e.printStackTrace();
-            stopMonitor();
+            Log.e(TAG, "Error in Flora Data");
         }
     }
 }

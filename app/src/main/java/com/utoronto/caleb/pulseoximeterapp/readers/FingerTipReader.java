@@ -1,6 +1,7 @@
 package com.utoronto.caleb.pulseoximeterapp.readers;
 
 import android.content.Context;
+import android.hardware.usb.UsbDevice;
 import android.util.Log;
 
 import com.utoronto.caleb.pulseoximeterapp.Device;
@@ -10,14 +11,14 @@ import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FingerTipReader extends AbstractDeviceReader {
+public class FingerTipReader extends AbstractUsbReader {
 
     private String TAG = "FINGERTIP_READER";
 
     final boolean RECORD_BP = false;
 
-    public FingerTipReader(String deviceName, Context context, UsbDataHandler handler) {
-        super(deviceName, context, handler);
+    public FingerTipReader(UsbDevice device, Context context, UsbDataHandler handler) {
+        super(device, context, handler);
     }
 
     @Override
@@ -47,8 +48,11 @@ public class FingerTipReader extends AbstractDeviceReader {
         if(bpValid)
             dataMap.put(DataKeys.BP, bp);
 
-        if (hrValid || oxygenValid || bpValid)
+        if (hrValid || oxygenValid || bpValid) {
             mHandler.handleIncomingData(Device.FINGERTIP, dataMap);
+        } else {
+            Log.e(TAG, "No valid data");
+        }
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();

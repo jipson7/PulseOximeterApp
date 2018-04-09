@@ -4,14 +4,14 @@ import android.content.Context;
 
 import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 
-public class BLEDeviceReader extends AbstractDeviceReader {
-
-    public BLEDeviceReader(String deviceName, Context context, UsbDataHandler handler) {
-        super(deviceName, context, handler);
+public class BLEDeviceReader extends Thread implements IDeviceReader {
+    @Override
+    public void run() {
+        super.run();
     }
 
     @Override
-    public void saveData(byte[] bytes) {
+    public void stopMonitor() {
 
     }
 }

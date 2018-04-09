@@ -11,7 +11,7 @@ import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 
 import java.util.HashMap;
 
-public abstract class AbstractDeviceReader extends Thread {
+public abstract class AbstractUsbReader extends Thread implements IDeviceReader {
 
     private UsbSerialDevice mSerial;
 
@@ -21,9 +21,9 @@ public abstract class AbstractDeviceReader extends Thread {
 
     public abstract void saveData(byte[] bytes);
 
-    public AbstractDeviceReader(String deviceName, Context context, UsbDataHandler handler) {
+    public AbstractUsbReader(UsbDevice device, Context context, UsbDataHandler handler) {
         this.mHandler = handler;
-        this.mSerial = getDeviceSerial(deviceName, context);
+        this.mSerial = getDeviceSerial(device, context);
     }
 
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
@@ -46,19 +46,18 @@ public abstract class AbstractDeviceReader extends Thread {
         monitorDevice();
     }
 
-    public void monitorDevice() {
+    private void monitorDevice() {
         mSerial.open();
         mSerial.read(mCallback);
     }
 
-    public UsbSerialDevice getDeviceSerial(String deviceName, Context context) {
+    private UsbSerialDevice getDeviceSerial(UsbDevice device, Context context) {
         UsbManager usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
-        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        UsbDevice device = deviceList.get(deviceName);
         UsbDeviceConnection connection = usbManager.openDevice(device);
         return UsbSerialDevice.createUsbSerialDevice(device, connection);
     }
 
+    @Override
     public void stopMonitor() {
         this.running = false;
         this.interrupt();

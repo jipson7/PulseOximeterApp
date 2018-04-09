@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
             "com.utoronto.caleb.pulseoximeterapp.param.FINGERTIP_DEVICE_PARAMETER";
     private UsbDevice mFingertipDevice = null;
     public static final String FLORA_DEVICE_PARAM =
-            "com.utoronto.caleb.pulseoximeterapp.param.FINGERTIP_DEVICE_PARAMETER";
+            "com.utoronto.caleb.pulseoximeterapp.param.FLORA_DEVICE_PARAMETER";
     private UsbDevice mFloraDevice = null;
     public static final String BLUETOOTH_DEVICE_PARAM =
             "com.utoronto.caleb.pulseoximeterapp.param.BLUETOOTH_DEVICE_PARAMETER";
@@ -217,13 +217,16 @@ public class MainActivity extends Activity {
 
         Intent intent = new Intent(this, MonitorActivity.class);
 
-        if (mFingertipSwitch.isChecked()) {
+        if (mFingertipSwitch.isChecked() && (mFingertipDevice != null)) {
+            Log.d(TAG, "Attaching Fingertip reader");
             intent.putExtra(FINGERTIP_DEVICE_PARAM, mFingertipDevice);
         }
-        if (mFloraSwitch.isChecked()) {
+        if (mFloraSwitch.isChecked() && (mFloraDevice != null)) {
+            Log.d(TAG, "Attaching FLora reader");
             intent.putExtra(FLORA_DEVICE_PARAM, mFloraDevice);
         }
-        if (mBluetoothSwitch.isChecked()) {
+        if (mBluetoothSwitch.isChecked() && (mBluetoothDevice != null)) {
+            Log.d(TAG, "Attaching Bluetooth reader");
             intent.putExtra(BLUETOOTH_DEVICE_PARAM, mBluetoothDevice);
         }
         startActivity(intent);

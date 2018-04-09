@@ -88,17 +88,14 @@ public class MonitorService extends Service implements UsbDataHandler {
                 if (action.equals(MonitorActivity.ACTION_MONITOR)) {
                     Bundle extras = intent.getExtras();
                     if (extras != null) {
-                        mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
-                        if (mBluetoothDevice != null) {
-                            Log.d(TAG, "Device Received: " + Device.BLUETOOTH_SENSOR);
+                        if (extras.containsKey(MainActivity.BLUETOOTH_DEVICE_PARAM)) {
+                            mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
                         }
-                        mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
-                        if (mFingertipDevice != null) {
-                            Log.d(TAG, "Device Received: " + Device.FINGERTIP);
+                        if (extras.containsKey(MainActivity.FINGERTIP_DEVICE_PARAM)) {
+                            mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
                         }
-                        mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
-                        if (mFloraDevice != null) {
-                            Log.d(TAG, "Device Received: " + Device.MAX30102);
+                        if (extras.containsKey(MainActivity.FLORA_DEVICE_PARAM)) {
+                            mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
                         }
                     }
                     monitor();
@@ -127,20 +124,27 @@ public class MonitorService extends Service implements UsbDataHandler {
     private void monitor() {
         Log.d(TAG, "Begin monitoring.");
 
-        if (mFingerTipReader == null || !mFingerTipReader.isAlive()) {
-            mFingerTipReader = new FingerTipReader(mFingertipDevice.getDeviceName(), this, this);
-            mFingerTipReader.start();
+        if (mFingertipDevice != null) {
+            if ( mFingerTipReader == null || !mFingerTipReader.isAlive()) {
+                Log.d(TAG, "Creating Fingertip Reader");
+                mFingerTipReader = new FingerTipReader(mFingertipDevice, this, this);
+                mFingerTipReader.start();
+            }
         }
 
-        if (mFloraReader == null || !mFloraReader.isAlive()) {
-            mFloraReader = new FloraReader(mFloraDevice.getDeviceName(), this, this);
-            mFloraReader.start();
+        if (mFloraDevice != null) {
+            if (mFloraReader == null || !mFloraReader.isAlive()) {
+                Log.d(TAG, "Creating Flora Reader");
+                mFloraReader = new FloraReader(mFloraDevice, this, this);
+                mFloraReader.start();
+            }
         }
 
-        if (mBLEDeviceReader == null || !mBLEDeviceReader.isAlive()) {
-            //TODO start BLE reading
+        if (mBluetoothDevice != null) {
+            if (mBLEDeviceReader == null || !mBLEDeviceReader.isAlive()) {
+                //TODO start BLE reading
+            }
         }
-
     }
 
     @Override

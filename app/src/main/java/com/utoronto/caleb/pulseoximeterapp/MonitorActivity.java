@@ -27,9 +27,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     Intent mMonitorServiceIntent = null;
     private MonitorService mMonitorService;
     private boolean mBound = false;
-    private BluetoothDevice mBluetoothDevice;
-    private UsbDevice mFingertipDevice;
-    private UsbDevice mFloraDevice;
+    private Bundle mExtras;
 
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -65,12 +63,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         registerReceiver(mReceiver, new IntentFilter(ACTION_STOP_MONITOR));
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mBluetoothDevice = extras.getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
-            mFingertipDevice = extras.getParcelable(MainActivity.FINGERTIP_DEVICE_PARAM);
-            mFloraDevice = extras.getParcelable(MainActivity.FLORA_DEVICE_PARAM);
-        }
+        mExtras = getIntent().getExtras();
         startMonitorService();
         bindMonitorService();
     }
@@ -79,9 +72,7 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         Log.d(TAG, "Starting Monitor service.");
         mMonitorServiceIntent = new Intent(this, MonitorService.class);
         mMonitorServiceIntent.setAction(ACTION_MONITOR);
-        mMonitorServiceIntent.putExtra(MainActivity.FINGERTIP_DEVICE_PARAM, mFingertipDevice);
-        mMonitorServiceIntent.putExtra(MainActivity.FLORA_DEVICE_PARAM, mFloraDevice);
-        mMonitorServiceIntent.putExtra(MainActivity.BLUETOOTH_DEVICE_PARAM, mBluetoothDevice);
+        mMonitorServiceIntent.putExtras(mExtras);
         startService(mMonitorServiceIntent);
     }
 
