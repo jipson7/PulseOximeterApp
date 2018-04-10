@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
     UsbManager mUsbManager;
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
-    private static final int BLUETOOTH_SCAN_PERIOD = 60000; // 10 seconds
+    private static final int BLUETOOTH_SCAN_PERIOD = 8000; // 8 seconds
 
     public static final String FINGERTIP_DEVICE_PARAM =
             "com.utoronto.caleb.pulseoximeterapp.param.FINGERTIP_DEVICE_PARAMETER";
@@ -138,9 +138,9 @@ public class MainActivity extends Activity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             BluetoothDevice device = result.getDevice();
-            if ((device.getName() != null) && Device.BLUETOOTH_SENSOR.is(device.getName())); {
-                // Found Device
+            if (Device.BLUETOOTH_SENSOR.is(device)) {
                 Log.d(TAG, "Found Bluetooth Device");
+                Log.d(TAG, "Device " + device.getName());
                 startScanner(false);
                 mBluetoothSwitch.setChecked(true);
                 mBluetoothDevice = device;
@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void startScanner(final boolean enable) {
+    private void startScanner(boolean enable) {
         final BluetoothLeScanner bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         if (enable) {
@@ -157,11 +157,16 @@ public class MainActivity extends Activity {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    bluetoothLeScanner.stopScan(mLeScanCallback);
+                    startScanner(false);
                 }
             }, BLUETOOTH_SCAN_PERIOD);
             bluetoothLeScanner.startScan(mLeScanCallback);
         } else {
+            if (mBluetoothDevice == null) {
+                Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, R.string.bluetooth_found, Toast.LENGTH_LONG).show();
+            }
             Log.d(TAG, "Bluetooth scanner disabled");
             bluetoothLeScanner.stopScan(mLeScanCallback);
         }

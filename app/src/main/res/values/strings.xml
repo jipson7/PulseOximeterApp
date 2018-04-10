@@ -13,6 +13,8 @@
     <!-- Toasts -->
     <string name="no_devices">No supported devices attached.</string>
     <string name="device_granted">Device Permission Granted.</string>
+    <string name="no_bluetooth">Bluetooth Device not found.</string>
+    <string name="bluetooth_found">Connected to BLE Device.</string>
 
     <!-- Device IDS -->
     <string name="product_id_fingertip">USBUART</string>

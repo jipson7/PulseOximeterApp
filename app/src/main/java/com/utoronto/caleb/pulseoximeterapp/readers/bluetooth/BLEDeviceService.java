@@ -27,7 +27,7 @@ public class BLEDeviceService extends Service {
     private BluetoothDevice mDevice;
     private BluetoothGatt mBluetoothGatt;
     private DataParser mDataParser;
-    private Semaphore available;
+    private Semaphore mConnectionLock;
 
     private static final UUID NRF52_SERVICE = UUID
             .fromString("6E400000-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -46,6 +46,7 @@ public class BLEDeviceService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "BLE Service starting...");
         mDataParser = new DataParser();
+        mConnectionLock = new Semaphore(1, true);
         bleHandler = new Handler();
         mDevice = intent.getExtras().getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
         mBluetoothGatt = mDevice.connectGatt(this, false, mGattCallback);
@@ -72,7 +73,6 @@ public class BLEDeviceService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Log.d(TAG, "onServicesDiscovered: " + status);
-            available = new Semaphore(1, true);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (serviceCheck()) {
                     Log.d(TAG, "Service found starting sensors");
@@ -249,7 +249,7 @@ public class BLEDeviceService extends Service {
     {
         try {
             Log.d(TAG, "Acquiring communication lock.");
-            available.acquire();
+            mConnectionLock.acquire();
             Log.d(TAG, "Communication lock acquired.");
         } catch (Exception e) {
             Log.e(TAG, "Failed to acquire communication lock.");
@@ -258,7 +258,7 @@ public class BLEDeviceService extends Service {
 
     private void unLockComm()
     {
-        available.release();
+        mConnectionLock.release();
         Log.d(TAG, "Communication Lock Released");
     }
 
@@ -268,6 +268,7 @@ public class BLEDeviceService extends Service {
         if (mBluetoothGatt == null) {
             return;
         }
+        mBluetoothGatt.disconnect();
         mBluetoothGatt.close();
         mBluetoothGatt = null;
         super.onDestroy();
