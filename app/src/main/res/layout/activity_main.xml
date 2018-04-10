@@ -12,15 +12,6 @@
         android:layout_width="match_parent">
 
         <Button
-            android:id="@+id/device_btn"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:onClick="onClickLogUsbDevices"
-            android:text="@string/device_btn_lbl" />
-
-        <Button
             android:id="@+id/monitor_btn"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -46,6 +37,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/device_name_bluetooth" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/util_header" />
+
+        <Button
+            android:id="@+id/device_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:onClick="onClickLogUsbDevices"
+            android:text="@string/device_btn_lbl" />
+
+        <Button
+            android:id="@+id/scan_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClickRescan"
+            android:text="@string/scan_btn_label" />
 
     </LinearLayout>
 

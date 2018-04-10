@@ -139,20 +139,24 @@ public class MainActivity extends Activity {
             super.onScanResult(callbackType, result);
             BluetoothDevice device = result.getDevice();
             if (Device.BLUETOOTH_SENSOR.is(device)) {
-                Log.d(TAG, "Found Bluetooth Device");
-                Log.d(TAG, "Device " + device.getName());
-                startScanner(false);
                 mBluetoothSwitch.setChecked(true);
                 mBluetoothDevice = device;
+                startScanner(false);
             }
         }
     };
+
+    public void onClickRescan(View v) {
+        mBluetoothSwitch.setChecked(false);
+        mBluetoothDevice = null;
+        startScanner(true);
+    }
 
     private void startScanner(boolean enable) {
         final BluetoothLeScanner bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         if (enable) {
-            Log.d(TAG, "Bluetooth scanner enabled");
+            Toast.makeText(this, R.string.start_bluetooth, Toast.LENGTH_SHORT).show();
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -167,7 +171,6 @@ public class MainActivity extends Activity {
             } else {
                 Toast.makeText(this, R.string.bluetooth_found, Toast.LENGTH_LONG).show();
             }
-            Log.d(TAG, "Bluetooth scanner disabled");
             bluetoothLeScanner.stopScan(mLeScanCallback);
         }
     }
