@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -81,14 +80,8 @@ public class NRF52BLESensor {
                     && newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
 
-            } else if (status == BluetoothGatt.GATT_SUCCESS
-                    && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                announceConnection();
-
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
-                announceConnection();
                 gatt.disconnect();
-                gatt.close();
             }
 
         }
@@ -142,10 +135,6 @@ public class NRF52BLESensor {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             byte[] copiedData = characteristic.getValue();
-            //byte[] copiedData = Arrays.copyOf(characteristic.getValue(), characteristic.getValue().length);
-            //displayPacketBin("onCharacteristicChanged", characteristic, readData);
-            //Log.d(TAG, "onCharacteristicChanged:"+copiedData[0]);
-            //Log.d(TAG, "onCharacteristicChanged:");
             if ( characteristic.getUuid().equals(NRF52_DATA_NOTIFICATION) )
                 announceNRF52_DATA_NOTIFICATION(copiedData);
             super.onCharacteristicChanged(gatt, characteristic);
@@ -157,12 +146,6 @@ public class NRF52BLESensor {
             Log.d(TAG, "onDescriptorWrite:" + status);
             unLockComm();
             super.onDescriptorWrite(gatt, descriptor, status);
-        }
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            //Log.d(TAG, "Remote RSSI: " + rssi);
-            announceNRF52_SIGNAL_STRENGTH(rssi);
         }
 
         private String connectionState(int status) {
@@ -232,12 +215,6 @@ public class NRF52BLESensor {
         return ret;
     }
 
-    public void readRemoteRSSI()
-    {
-        if ( mConnectedGatt != null)
-            mConnectedGatt.readRemoteRssi();
-    }
-
     public void writeConfig(byte[] configData)
     {
         final byte[] cData = configData;
@@ -274,59 +251,6 @@ public class NRF52BLESensor {
         }
     }
 
-    public void readConfig(byte[] configData)
-    {
-        final byte[] cData = configData;
-        if ( serviceCheck() )
-        {
-            bleHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    BluetoothGattCharacteristic nrf52_config_rw;
-                    try {
-                        lockComm();
-                        nrf52_config_rw = mConnectedGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_CONFIG_RW);
-                        nrf52_config_rw.setValue(cData);
-
-                        String cDataValue = "readConfig:";
-                        for ( int i = 0; i < cData.length; i++ ) {
-                            cDataValue += String.format("%02x", cData[i]) + " ";
-                        }
-                        Log.d(TAG, cDataValue);
-
-                        if ( cData[1] == FWAPI.READREG &&
-                                (cData[0] == FWAPI.I2C || cData[0] == FWAPI.SENS_OPT || cData[0] == FWAPI.SENS_ACC) ) //Dirty
-                        {
-                            if ( cData[0] == FWAPI.I2C  )
-                                reg_slave_type = cData[4];
-                            else
-                                reg_slave_type = cData[0];
-                            reg_addr = cData[2];
-                            reg_len = cData[3];
-                        }
-                        mConnectedGatt.writeCharacteristic(nrf52_config_rw);
-
-                        lockComm();
-                        mConnectedGatt.readCharacteristic(nrf52_config_rw);
-
-                    } catch ( NullPointerException e) {
-                        unLockComm();
-                        e.printStackTrace();
-                        Log.e(TAG, "readConfig Error");
-                    }
-                }
-            });
-        }
-    }
-
-    private void announceConnection() {
-        if (serviceCheck()) {
-            Log.d(TAG, "CONNECTED");
-        } else {
-            Log.d(TAG, "DISCONNECTED");
-        }
-    }
-
     private void announceNRF52_CONFIG_Read(byte[] packet) {
         Log.d(TAG, "Config Read Notification");
     }
@@ -335,9 +259,6 @@ public class NRF52BLESensor {
         mDataParser.parseNRF52_DATA_NOTIFICATION(packet);
     }
 
-    private void announceNRF52_SIGNAL_STRENGTH(int rssi) {
-        Log.d(TAG, "RSSI: " + rssi);
-    }
 
     private void lockComm()
     {
@@ -353,7 +274,7 @@ public class NRF52BLESensor {
     private void unLockComm()
     {
         available.release();
-        //Log.d(TAG, "After Release");
+        Log.d(TAG, "Communication Lock Released");
     }
 
 

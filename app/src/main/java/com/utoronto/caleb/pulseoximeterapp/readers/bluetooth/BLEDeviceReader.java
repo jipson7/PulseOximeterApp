@@ -2,6 +2,7 @@ package com.utoronto.caleb.pulseoximeterapp.readers.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.Looper;
 
 import com.utoronto.caleb.pulseoximeterapp.UsbDataHandler;
 import com.utoronto.caleb.pulseoximeterapp.readers.IDeviceReader;
@@ -20,6 +21,7 @@ public class BLEDeviceReader extends Thread implements IDeviceReader {
 
     @Override
     public void run() {
+        Looper.prepare();
         mSensor.resume();
     }
 
