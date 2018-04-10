@@ -57,7 +57,6 @@ public class NRF52BLESensor {
 
     protected void resume()
     {
-        Looper.prepare();
         bleHandler = new Handler();
         mConnectedGatt = mDevice.connectGatt(mContext, false, mGattCallback);
     }
@@ -343,10 +342,11 @@ public class NRF52BLESensor {
     private void lockComm()
     {
         try {
-            //Log.d(TAG, "Before Acquire");
+            Log.d(TAG, "Acquiring communication lock.");
             available.acquire();
-            //Log.d(TAG, "After Acquire");
+            Log.d(TAG, "Communication lock acquired.");
         } catch (Exception e) {
+            Log.e(TAG, "Failed to acquire communication lock.");
         }
     }
 
