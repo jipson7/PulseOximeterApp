@@ -152,6 +152,7 @@ public class MainActivity extends Activity {
         final BluetoothLeScanner bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         if (enable) {
+            Log.d(TAG, "Bluetooth scanner enabled");
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -161,6 +162,7 @@ public class MainActivity extends Activity {
             }, BLUETOOTH_SCAN_PERIOD);
             bluetoothLeScanner.startScan(mLeScanCallback);
         } else {
+            Log.d(TAG, "Bluetooth scanner disabled");
             bluetoothLeScanner.stopScan(mLeScanCallback);
         }
     }

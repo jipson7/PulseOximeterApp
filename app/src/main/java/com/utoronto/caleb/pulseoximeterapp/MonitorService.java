@@ -13,15 +13,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.utoronto.caleb.pulseoximeterapp.readers.BLEDeviceReader;
+import com.utoronto.caleb.pulseoximeterapp.readers.bluetooth.BLEDeviceReader;
 import com.utoronto.caleb.pulseoximeterapp.readers.FingerTipReader;
 import com.utoronto.caleb.pulseoximeterapp.readers.FloraReader;
 import com.utoronto.caleb.pulseoximeterapp.storage.DBHelper;
 import com.utoronto.caleb.pulseoximeterapp.storage.DataKeys;
 import com.utoronto.caleb.pulseoximeterapp.visualization.DataVisualizer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -142,7 +140,8 @@ public class MonitorService extends Service implements UsbDataHandler {
 
         if (mBluetoothDevice != null) {
             if (mBLEDeviceReader == null || !mBLEDeviceReader.isAlive()) {
-                //TODO start BLE reading
+                mBLEDeviceReader = new BLEDeviceReader(mBluetoothDevice, this, this);
+                mBLEDeviceReader.start();
             }
         }
     }

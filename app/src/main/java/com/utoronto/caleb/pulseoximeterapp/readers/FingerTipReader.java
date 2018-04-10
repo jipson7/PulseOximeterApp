@@ -50,8 +50,6 @@ public class FingerTipReader extends AbstractUsbReader {
 
         if (hrValid || oxygenValid || bpValid) {
             mHandler.handleIncomingData(Device.FINGERTIP, dataMap);
-        } else {
-            Log.e(TAG, "No valid data");
         }
     }
 
