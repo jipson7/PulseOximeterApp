@@ -30,6 +30,9 @@
         <service
             android:name=".MonitorService"
             android:exported="false"></service>
+        <service
+            android:name=".readers.bluetooth.BLEDeviceService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

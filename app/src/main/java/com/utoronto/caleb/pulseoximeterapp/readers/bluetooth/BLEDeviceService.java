@@ -1,24 +1,33 @@
 package com.utoronto.caleb.pulseoximeterapp.readers.bluetooth;
 
-
+import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.utoronto.caleb.pulseoximeterapp.MainActivity;
 
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+public class BLEDeviceService extends Service {
 
-public class NRF52BLESensor {
+    private final static String TAG = "BLE_DEVICE_SERVICE";
 
-    private static final String TAG = BLEDeviceReader.TAG;
+    private Handler bleHandler;
+    private BluetoothDevice mDevice;
+    private BluetoothGatt mBluetoothGatt;
+    private DataParser mDataParser;
+    private Semaphore available;
 
     private static final UUID NRF52_SERVICE = UUID
             .fromString("6E400000-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -29,45 +38,19 @@ public class NRF52BLESensor {
     private static final UUID CONFIG_DESCRIPTOR = UUID
             .fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-
-    private Context mContext;
-
-    private BluetoothDevice mDevice;
-    private BluetoothGatt mConnectedGatt;
-
-    private Semaphore available;
-
-    Handler bleHandler;
-
-    //Dirty Code
     private byte reg_slave_type = 0;
     private byte reg_len = 0;
     private byte reg_addr = 0;
 
-    DataParser mDataParser;
-
-    public NRF52BLESensor(Context context, BluetoothDevice device) {
-
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "BLE Service starting...");
         mDataParser = new DataParser();
-        mContext = context;
-        mDevice = device;
-
-    }
-
-    protected void resume()
-    {
         bleHandler = new Handler();
-        mConnectedGatt = mDevice.connectGatt(mContext, false, mGattCallback);
+        mDevice = intent.getExtras().getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
+        mBluetoothGatt = mDevice.connectGatt(this, false, mGattCallback);
+        return super.onStartCommand(intent, flags, startId);
     }
-
-    protected void pause() {
-        if (mConnectedGatt != null) {
-            mConnectedGatt.disconnect();
-            mConnectedGatt.close();
-            mConnectedGatt = null;
-        }
-    }
-
 
     private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 
@@ -93,7 +76,9 @@ public class NRF52BLESensor {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (serviceCheck()) {
                     Log.d(TAG, "Service found starting sensors");
-                    startSensors();
+                    byte[] configData = FWAPI.setNRF_ENABLE_SENSORS(FWAPI.START);
+                    writeConfig(configData);
+                    enableNotification(true);
                 }
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -164,7 +149,7 @@ public class NRF52BLESensor {
         }
     };
 
-    public void enableNofitication(boolean enable)
+    public void enableNotification(boolean enable)
     {
         final boolean fEnable = enable;
         if ( serviceCheck() )
@@ -176,17 +161,17 @@ public class NRF52BLESensor {
                     BluetoothGattCharacteristic nrf52_data_notification;
                     try {
                         lockComm();
-                        nrf52_data_notification = mConnectedGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_DATA_NOTIFICATION);
-                        mConnectedGatt.setCharacteristicNotification(nrf52_data_notification, fEnable);
+                        nrf52_data_notification = mBluetoothGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_DATA_NOTIFICATION);
+                        mBluetoothGatt.setCharacteristicNotification(nrf52_data_notification, fEnable);
 
                         BluetoothGattDescriptor desc = nrf52_data_notification.getDescriptor(CONFIG_DESCRIPTOR);
                         desc.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                        mConnectedGatt.writeDescriptor(desc);
+                        mBluetoothGatt.writeDescriptor(desc);
                         Log.d(TAG, "Wrote Descriptor to enable notifications");
                     } catch ( NullPointerException e) {
                         unLockComm();
                         e.printStackTrace();
-                        Log.e(TAG, "enableNofitication Error");
+                        Log.e(TAG, "enableNotification Error");
                     }
                 }
             });
@@ -204,7 +189,7 @@ public class NRF52BLESensor {
 
         boolean ret;
         try {
-            mConnectedGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_CONFIG_RW);
+            mBluetoothGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_CONFIG_RW);
             ret = true;
             Log.d(TAG, "Service Found");
         } catch ( NullPointerException e) {
@@ -227,9 +212,9 @@ public class NRF52BLESensor {
                     BluetoothGattCharacteristic nrf52_config_rw;
                     try {
                         lockComm();
-                        nrf52_config_rw = mConnectedGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_CONFIG_RW);
+                        nrf52_config_rw = mBluetoothGatt.getService(NRF52_SERVICE).getCharacteristic(NRF52_CONFIG_RW);
                         nrf52_config_rw.setValue(cData);
-                        mConnectedGatt.writeCharacteristic(nrf52_config_rw);
+                        mBluetoothGatt.writeCharacteristic(nrf52_config_rw);
 
                         String cDataValue = "writeConfig:";
                         for ( int i = 0; i < cData.length; i++ ) {
@@ -277,10 +262,20 @@ public class NRF52BLESensor {
         Log.d(TAG, "Communication Lock Released");
     }
 
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "BLE Service Destroyed");
+        if (mBluetoothGatt == null) {
+            return;
+        }
+        mBluetoothGatt.close();
+        mBluetoothGatt = null;
+        super.onDestroy();
+    }
 
-    private void startSensors() {
-        byte[] configData = FWAPI.setNRF_ENABLE_SENSORS(FWAPI.START);
-        writeConfig(configData);
-        enableNofitication(true);
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }
