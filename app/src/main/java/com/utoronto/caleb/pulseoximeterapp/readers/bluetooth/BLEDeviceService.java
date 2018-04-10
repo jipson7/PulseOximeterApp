@@ -26,8 +26,13 @@ public class BLEDeviceService extends Service {
     private Handler bleHandler;
     private BluetoothDevice mDevice;
     private BluetoothGatt mBluetoothGatt;
-    private DataParser mDataParser;
     private Semaphore mConnectionLock;
+
+    public static final String ACTION_SEND_DATA =
+            "com.utoronto.caleb.pulseoximeterapp.action.SEND_DATA";
+    public static final String DATA_EXTRA =
+            "com.utoronto.caleb.pulseoximeterapp.param.BLUETOOTH_DATA";
+
 
     private static final UUID NRF52_SERVICE = UUID
             .fromString("6E400000-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -45,7 +50,6 @@ public class BLEDeviceService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "BLE Service starting...");
-        mDataParser = new DataParser();
         mConnectionLock = new Semaphore(1, true);
         bleHandler = new Handler();
         mDevice = intent.getExtras().getParcelable(MainActivity.BLUETOOTH_DEVICE_PARAM);
@@ -89,7 +93,6 @@ public class BLEDeviceService extends Service {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic, int status) {
             byte readData[] = characteristic.getValue();
-            //displayPacketBin("onCharacteristicRead", characteristic, readData);
             if ( characteristic.getUuid().equals(NRF52_CONFIG_RW) ) {
                 if ( readData[0] == FWAPI.MSG_REGVAL)
                 {
@@ -97,13 +100,12 @@ public class BLEDeviceService extends Service {
                     readData[6] = reg_addr;
                     readData[7] = reg_len;
                 }
-                announceNRF52_CONFIG_Read(readData);
                 unLockComm();
             }
             else if ( characteristic.getUuid().equals(NRF52_DATA_NOTIFICATION) )
             {
                 byte[] copiedData = Arrays.copyOf(readData, 20);
-                announceNRF52_DATA_NOTIFICATION(copiedData);
+                sendDataIntent(copiedData);
             }
 
             super.onCharacteristicRead(gatt, characteristic, status);
@@ -121,7 +123,7 @@ public class BLEDeviceService extends Service {
                                             BluetoothGattCharacteristic characteristic) {
             byte[] copiedData = characteristic.getValue();
             if ( characteristic.getUuid().equals(NRF52_DATA_NOTIFICATION) )
-                announceNRF52_DATA_NOTIFICATION(copiedData);
+                sendDataIntent(copiedData);
             super.onCharacteristicChanged(gatt, characteristic);
         }
 
@@ -236,12 +238,10 @@ public class BLEDeviceService extends Service {
         }
     }
 
-    private void announceNRF52_CONFIG_Read(byte[] packet) {
-        Log.d(TAG, "Config Read Notification");
-    }
-
-    private void announceNRF52_DATA_NOTIFICATION(byte[] packet) {
-        mDataParser.parseNRF52_DATA_NOTIFICATION(packet);
+    private void sendDataIntent(byte[] packet) {
+        Intent i = new Intent(ACTION_SEND_DATA);
+        i.putExtra(DATA_EXTRA, packet);
+        sendBroadcast(i);
     }
 
 
