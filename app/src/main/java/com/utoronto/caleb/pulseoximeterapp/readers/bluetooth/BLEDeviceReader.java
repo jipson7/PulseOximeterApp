@@ -21,6 +21,7 @@ public class BLEDeviceReader extends Thread implements IDeviceReader {
     UsbDataHandler mDataHandler;
     Context mContext;
     Intent mBLEServiceIntent;
+    BLEDataParser mDataParser;
 
     private final BroadcastReceiver mDataReceiver = new BroadcastReceiver() {
         @Override
@@ -36,6 +37,7 @@ public class BLEDeviceReader extends Thread implements IDeviceReader {
 
     public BLEDeviceReader(BluetoothDevice device, Context context, UsbDataHandler handler) {
         mDataHandler = handler;
+        //mDataParser = new BLEDataParser();
         mContext = context;
         mBLEServiceIntent = new Intent(context, BLEDeviceService.class);
         mBLEServiceIntent.putExtra(MainActivity.BLUETOOTH_DEVICE_PARAM, device);
@@ -66,6 +68,4 @@ public class BLEDeviceReader extends Thread implements IDeviceReader {
             packet_int[i] = data[i] & 0xFF;
         Log.d(TAG, "Incoming data: " + Arrays.toString(packet_int));
     }
-
-
 }
