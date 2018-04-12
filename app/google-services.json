@@ -8,6 +8,50 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:299724722089:android:e703d9e0527c11c4",
+        "android_client_info": {
+          "package_name": "ca.utoronto.caleb.pulseoximeterdevices"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299724722089-uo01fvodgi5nlsdta00l2kodhiud5k1r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ca.utoronto.caleb.pulseoximeterdevices",
+            "certificate_hash": "52b0175ef2f358224b26f6f0059b16308c1fdbf7"
+          }
+        },
+        {
+          "client_id": "299724722089-he7iherr5u0r8cnrujg0flkt5ashcttq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjfnTzcEU6j0K4tn-mLXqHkGVQjpW3f8U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299724722089-he7iherr5u0r8cnrujg0flkt5ashcttq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:299724722089:android:59df887f14c1e588",
         "android_client_info": {
           "package_name": "com.utoronto.caleb.pulseoximeterapp"

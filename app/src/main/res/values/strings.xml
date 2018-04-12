@@ -1,12 +1,12 @@
 <resources>
-    <!-- Labels -->
-    <string name="app_name">PulseOximeterApp</string>
+    <string name="app_name">PulseOximeterDevices</string>
 
     <!-- Main Activity -->
     <string name="device_btn_lbl">Log USB Devices</string>
     <string name="monitor_btn_lbl">Monitor Devices</string>
     <string name="scan_btn_label">Rescan for BLE Device</string>
     <string name="util_header">Utilities</string>
+    <string name="device_header">Devices</string>
 
     <!-- Monitor Activity -->
     <string name="stop_monitor_btn_lbl">Stop Monitoring</string>
@@ -15,20 +15,5 @@
     <!-- Toasts -->
     <string name="no_devices">No supported devices attached.</string>
     <string name="device_granted">Device Permission Granted.</string>
-    <string name="no_bluetooth">Bluetooth Device not found.</string>
-    <string name="bluetooth_found">Connected to BLE Device.</string>
-    <string name="start_bluetooth">Scanning for BLE Device.</string>
-
-    <!-- Device IDS -->
-    <string name="product_id_fingertip">USBUART</string>
-
-    <!-- Device Names -->
-    <string name="device_name_fingertip">Fingertip Reader</string>
-    <string name="device_name_flora">Flora (MAX30102)</string>
-    <string name="device_name_bluetooth">Bluetooth (MAX86140)</string>
-
-    <!-- Notification Information -->
-    <string name="notification_title">Monitor Status</string>
-    <string name="notification_message">In progress…</string>
-    <string name="ticker_text">Ticker Text?</string>
+    <string name="trial_required">Trial description is required.</string>
 </resources>

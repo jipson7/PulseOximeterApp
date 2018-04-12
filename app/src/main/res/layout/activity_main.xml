@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.utoronto.caleb.pulseoximeterapp.MainActivity">
+    tools:context=".MainActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -20,32 +20,18 @@
             android:onClick="onClickMonitorBtn"
             android:text="@string/monitor_btn_lbl" />
 
-        <Switch
-            android:id="@+id/switch_fingertip"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/device_name_fingertip" />
+            android:gravity="center"
+            android:text="@string/device_header" />
 
-        <Switch
-            android:id="@+id/switch_flora"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/device_list_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/device_name_flora" />
-
-        <Switch
-            android:id="@+id/switch_bluetooth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/device_name_bluetooth" />
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
+            android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -59,13 +45,6 @@
             android:layout_centerVertical="true"
             android:onClick="onClickLogUsbDevices"
             android:text="@string/device_btn_lbl" />
-
-        <Button
-            android:id="@+id/scan_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onClickRescan"
-            android:text="@string/scan_btn_label" />
 
     </LinearLayout>
 
