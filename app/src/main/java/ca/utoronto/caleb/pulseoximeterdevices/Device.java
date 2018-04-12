@@ -76,6 +76,7 @@ public class Device implements Parcelable {
             }
         } else {
             Log.d(MainActivity.TAG, "Invalid Device Detected");
+            Log.d(MainActivity.TAG, device.toString());
         }
     }
 

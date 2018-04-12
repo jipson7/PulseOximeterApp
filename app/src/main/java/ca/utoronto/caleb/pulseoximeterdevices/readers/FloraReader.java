@@ -45,6 +45,7 @@ public class FloraReader extends DeviceReader {
                 data.put(DataKeys.OXYGEN, json.getInt("SPO2"));
 
             if (oxygenValid || hrValid) {
+                Log.d(TAG, "Flora Sensor data valid.");
                 // Add lights if at least one sensor is getting valid results
                 data.put(DataKeys.RED, json.getInt("red"));
                 data.put(DataKeys.IR, json.getInt("ir"));

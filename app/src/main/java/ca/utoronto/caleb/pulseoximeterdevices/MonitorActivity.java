@@ -101,7 +101,9 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
-        unbindService(mServiceConnection);
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
         mBound = false;
     }
 
