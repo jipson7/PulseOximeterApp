@@ -1,9 +1,7 @@
 package ca.utoronto.caleb.pulseoximeterdevices.storage;
 
-
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,41 +14,44 @@ public class DBHelper {
 
     Trial mTrial;
 
-    String collectionName = "trials";
+    String trialsList = "trials";
 
-    FirebaseFirestore db;
+    FirebaseDatabase db;
 
-    DocumentReference mTrialRef;
+    DatabaseReference mTrialRef;
 
-    Map<Device, CollectionReference> mDataRefs;
+    Map<Device, DatabaseReference> mDataRefs;
 
     public DBHelper() {
         mDataRefs = new HashMap<>();
-        db = FirebaseFirestore.getInstance();
+        db = FirebaseDatabase.getInstance();
     }
 
     public void saveData(Device device, Map<String, Object> data) {
         String timestamp = String.valueOf(System.currentTimeMillis());
+        data.put("timestamp", timestamp);
 
-        CollectionReference dataRef = mDataRefs.get(device);
+        DatabaseReference dataRef = mDataRefs.get(device);
 
         if (dataRef == null) {
-            DocumentReference deviceRef = mTrialRef.collection("devices").document();
-            deviceRef.set(device.toMap());
-            dataRef = deviceRef.collection("data");
+            DatabaseReference deviceRef = mTrialRef.child("devices").push();
+            deviceRef.setValue(device.toMap());
+            dataRef = deviceRef.child("data");
             mDataRefs.put(device, dataRef);
         }
 
-        dataRef.document(timestamp).set(data);
+        dataRef.push().setValue(data);
     }
 
     public void endSession() {
-        mTrialRef.update("end", System.currentTimeMillis());
+        Map<String, Object> timeUpdate = new HashMap<>();
+        timeUpdate.put("end", System.currentTimeMillis());
+        mTrialRef.updateChildren(timeUpdate);
     }
 
     public void setupTrial(String trialDesc) {
         mTrial = new Trial(trialDesc);
-        mTrialRef = db.collection(collectionName).document();
-        mTrialRef.set(mTrial.toMap());
+        mTrialRef = db.getReference(trialsList).push();
+        mTrialRef.setValue(mTrial.toMap());
     }
 }
