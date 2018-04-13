@@ -14,8 +14,6 @@ public class DBHelper {
 
     Trial mTrial;
 
-    String trialsList = "trials";
-
     FirebaseDatabase db;
 
     DatabaseReference mTrialRef;
@@ -51,7 +49,7 @@ public class DBHelper {
 
     public void setupTrial(String trialDesc) {
         mTrial = new Trial(trialDesc);
-        mTrialRef = db.getReference(trialsList).push();
+        mTrialRef = db.getReference("trials").push();
         mTrialRef.setValue(mTrial.toMap());
     }
 }
