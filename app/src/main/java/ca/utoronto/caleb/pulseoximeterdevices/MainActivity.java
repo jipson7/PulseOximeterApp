@@ -49,14 +49,13 @@ public class MainActivity extends Activity implements DescriptionRequester {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             if (ACTION_USB_PERMISSION.equals(action)) {
                 synchronized (this) {
-                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
                             Toast.makeText(MainActivity.this, R.string.device_granted, Toast.LENGTH_LONG).show();
-                            setupUsbDevices();
+                            addDevice(device);
                         }
                     }
                     else {
@@ -66,7 +65,9 @@ public class MainActivity extends Activity implements DescriptionRequester {
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 Log.d(TAG, "USB DEVICE ATTACHED");
-                setupUsbDevices();
+                if (device != null) {
+                    addDevice(device);
+                }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 Log.d(TAG, "Usb device DETACHED");
                 setupUsbDevices();
@@ -108,17 +109,21 @@ public class MainActivity extends Activity implements DescriptionRequester {
         Iterator it = deviceList.values().iterator();
         while (it.hasNext()) {
             UsbDevice usbDevice = (UsbDevice) it.next();
-            Device device = new Device(usbDevice);
-            if (device.isValid()) {
-                if (!this.mUsbManager.hasPermission(usbDevice)) {
-                    this.mUsbManager.requestPermission(usbDevice, this.mPermissionIntent);
-                } else {
-                    mDevices.add(device);
-                }
-            }
+            addDevice(usbDevice);
             it.remove();
         }
-        mAdapter.notifyDataSetChanged();
+    }
+
+    private void addDevice(UsbDevice usbDevice) {
+        Device device = new Device(usbDevice);
+        if (device.isValid()) {
+            if (!this.mUsbManager.hasPermission(usbDevice)) {
+                this.mUsbManager.requestPermission(usbDevice, this.mPermissionIntent);
+            } else {
+                mDevices.add(device);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
 
