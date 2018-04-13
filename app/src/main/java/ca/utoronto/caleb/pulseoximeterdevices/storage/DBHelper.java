@@ -51,6 +51,6 @@ public class DBHelper {
     public void setupTrial(String trialDesc) {
         mTrial = new Trial(trialDesc);
         mTrialRef = db.collection(collectionName).document();
-        mTrialRef.set(mTrial);
+        mTrialRef.set(mTrial.toMap());
     }
 }
