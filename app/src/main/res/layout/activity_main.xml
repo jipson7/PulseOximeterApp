@@ -46,6 +46,13 @@
             android:onClick="onClickLogUsbDevices"
             android:text="@string/device_btn_lbl" />
 
+        <Button
+            android:id="@+id/refresh_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClickRefreshBtn"
+            android:text="@string/refresh_btn_lbl" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -50,27 +50,26 @@ public class MainActivity extends Activity implements DescriptionRequester {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                synchronized (this) {
+            synchronized (this) {
+                if (ACTION_USB_PERMISSION.equals(action)) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if(device != null){
+                        if (device != null) {
                             Toast.makeText(MainActivity.this, R.string.device_granted, Toast.LENGTH_LONG).show();
                             addDevice(device);
                         }
-                    }
-                    else {
+                    } else {
                         Log.d(TAG, "permission denied for device" + device);
                         finish();
                     }
+                } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                    Log.d(TAG, "USB DEVICE ATTACHED");
+                    if (device != null) {
+                        addDevice(device);
+                    }
+                } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                    Log.d(TAG, "Usb device DETACHED");
+                    setupUsbDevices();
                 }
-            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                Log.d(TAG, "USB DEVICE ATTACHED");
-                if (device != null) {
-                    addDevice(device);
-                }
-            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                Log.d(TAG, "Usb device DETACHED");
-                setupUsbDevices();
             }
         }
     };
@@ -193,5 +192,9 @@ public class MainActivity extends Activity implements DescriptionRequester {
             }
         });
         builder.show();
+    }
+
+    public void onClickRefreshBtn(View v) {
+        setupUsbDevices();
     }
 }

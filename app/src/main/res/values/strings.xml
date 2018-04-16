@@ -5,6 +5,7 @@
     <string name="device_btn_lbl">Log USB Devices</string>
     <string name="monitor_btn_lbl">Monitor Devices</string>
     <string name="scan_btn_label">Rescan for BLE Device</string>
+    <string name="refresh_btn_lbl">Refresh Device List</string>
     <string name="util_header">Utilities</string>
     <string name="device_header">Devices</string>
 
