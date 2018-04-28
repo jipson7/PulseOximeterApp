@@ -11,12 +11,19 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 
 public class MonitorActivity extends Activity implements DataVisualizer {
     private final String TAG = "MONITOR_ACTIVITY";
@@ -29,6 +36,10 @@ public class MonitorActivity extends Activity implements DataVisualizer {
     private MonitorService mMonitorService;
     private boolean mBound = false;
     private Bundle mExtras;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mDeviceInfoAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -67,6 +78,23 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         mExtras = getIntent().getExtras();
         createMonitorServiceIntent();
         requestTrialDescription();
+        setupRecyclerView();
+    }
+
+    private void setupRecyclerView() {
+        mRecyclerView =  findViewById(R.id.device_data_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter (see also next example)
+        mDeviceInfoAdapter = new DeviceInfoAdapter(mDeviceDataMap);
+        mRecyclerView.setAdapter(mDeviceInfoAdapter);
     }
 
     private void createMonitorServiceIntent() {
@@ -107,9 +135,17 @@ public class MonitorActivity extends Activity implements DataVisualizer {
         mBound = false;
     }
 
+
+    private DeviceReadingMap<Device, Map<String, Object>> mDeviceDataMap = new DeviceReadingMap<>();
     @Override
     public void updateUI(Device device, Map<String, Object> data) {
-        Log.d(TAG, "Data incoming to display");
+        mDeviceDataMap.put(device, data);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDeviceInfoAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void requestTrialDescription() {

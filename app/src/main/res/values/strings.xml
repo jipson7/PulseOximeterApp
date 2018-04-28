@@ -17,4 +17,12 @@
     <string name="no_devices">No supported devices attached.</string>
     <string name="device_granted">Device Permission Granted.</string>
     <string name="trial_required">Trial description is required.</string>
+
+
+    <string name="device_reading_o2_label">O2 : </string>
+    <string name="device_reading_hr_label">HR : </string>
+    <string name="device_reading_red_led_label">RED LED : </string>
+    <string name="device_reading_ir_led_label">IR LED : </string>
+    <string name="reading_not_available">N/A</string>
+    <string name="device_reading_name">Device Name :</string>
 </resources>

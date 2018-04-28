@@ -102,7 +102,6 @@ public class MonitorService extends Service implements UsbDataHandler {
 
     @Override
     public void handleIncomingData(Device device, Map<String, Object> data) {
-        Log.d(TAG, "Data incoming to service");
         if (mDataVisualizer != null) {
             mDataVisualizer.updateUI(device, data);
         }

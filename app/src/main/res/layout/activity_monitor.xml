@@ -7,15 +7,10 @@
     tools:context="ca.utoronto.caleb.pulseoximeterdevices.MonitorActivity">
 
     <LinearLayout
+        android:id="@+id/device_info_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
 
         <Button
             android:id="@+id/button1"
@@ -30,5 +25,10 @@
             android:layout_height="wrap_content"
             android:onClick="closeWindow"
             android:text="@string/close_monitor_btn_lbl" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/device_data_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
